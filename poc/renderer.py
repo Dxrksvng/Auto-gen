@@ -20,6 +20,7 @@ from pathlib import Path
 
 from letter import LetterConfig, build_letter_text, load_letter_config
 from models import LetterData
+from normalize import th_date
 
 POC_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = POC_DIR / "templates" / "request_letter_th.html"
@@ -74,6 +75,23 @@ def _escape(value: str) -> str:
     return html.escape(value, quote=True)
 
 
+# Chrome's Thai dictionary does not know most proper nouns and may split them
+# mid-word (seen in practice: "เมดพาร์" / "ค" on two lines). Names and numbers that
+# must stay readable are therefore kept on one line. Very long values are left
+# breakable so a long value can never run past the margin.
+NO_BREAK_MAX_CHARS = 40
+
+
+def _paragraph_html(text: str, protected: tuple[str, ...] = ()) -> str:
+    """Escape a paragraph and mark protected values (first occurrence) as non-breaking."""
+    escaped = _escape(text)
+    for value in protected:
+        shown = _escape(value)
+        if value and len(value) <= NO_BREAK_MAX_CHARS and shown in escaped:
+            escaped = escaped.replace(shown, f'<span class="nb">{shown}</span>', 1)
+    return escaped
+
+
 def build_html(letter: LetterData, config: LetterConfig | None = None, preview: bool = False) -> str:
     """Fill the HTML template. Every value is escaped; data is never interpreted as markup."""
     config = config or load_letter_config()
@@ -88,8 +106,11 @@ def build_html(letter: LetterData, config: LetterConfig | None = None, preview: 
         "BANNER": banner,
         "RECIPIENT": _escape(letter.salutation),
         "SUBJECT": _escape(config.subject),
-        "INTRO": _escape(content.intro),
-        "REQUEST": _escape(content.request),
+        "INTRO": _paragraph_html(
+            content.intro,
+            (letter.policy_number, th_date(letter.coverage_start_date), th_date(letter.coverage_end_date)),
+        ),
+        "REQUEST": _paragraph_html(content.request, (letter.hospital,)),
         "ITEMS": items,
         "SUBMIT": _escape(content.submit),
         "CONTACT": _escape(content.contact),

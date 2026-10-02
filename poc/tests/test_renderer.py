@@ -7,6 +7,7 @@ from datetime import date
 from pathlib import Path
 
 import fitz
+import pymupdf
 import pytest
 
 from letter import load_letter_config
@@ -136,3 +137,32 @@ def test_template_config_corrects_the_known_typo():
     text = " ".join(CONFIG.paragraphs.values())
     assert "ท่านสามารถ" in text
     assert re.search(r"ท่าสามารถ", text) is None
+
+
+def test_logo_keeps_its_transparent_background():
+    """The brief's logo is a PNG with a soft mask; losing it renders a black box."""
+    pix = pymupdf.Pixmap(str(POC / "assets" / "logo.png"))
+    assert pix.alpha == 1, "logo must have an alpha channel"
+    assert pix.pixel(0, 0)[-1] == 0, "the corner of the logo must be transparent"
+
+
+def test_hospital_and_policy_number_are_wrapped_in_a_no_break_span():
+    html = build_html(sample(hospital="โรงพยาบาลเมดพาร์ค"), CONFIG)
+    assert '<span class="nb">โรงพยาบาลเมดพาร์ค</span>' in html
+    assert '<span class="nb">POL-2026-000123</span>' in html
+    assert '<span class="nb">1 มกราคม 2569</span>' in html
+    assert '<span class="nb">31 ธันวาคม 2569</span>' in html
+
+
+@needs_chrome
+def test_hospital_name_is_never_split_across_lines(tmp_path):
+    """Regression for a defect found by looking at the PNG: 'เมดพาร์' / 'ค' on two lines."""
+    letter = sample(source_row=8, hospital_name="เมดพาร์ค", hospital="โรงพยาบาลเมดพาร์ค",
+                    coverage_start_date=date(2026, 7, 1), coverage_end_date=date(2027, 6, 30))  # fmt: skip
+    out = tmp_path / "row8.pdf"
+    render_letter(letter, out)
+    lines = [line.strip() for line in pdf_text(out).splitlines()]
+    containing = [line for line in lines if "เมดพาร์" in line]
+    assert containing, "hospital name not found"
+    assert all("เมดพาร์ค" in line for line in containing), containing
+    assert not any(line == "ค" or line.startswith("ค ") for line in lines), "orphaned character at line start"
