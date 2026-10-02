@@ -1,0 +1,6 @@
+# Explicit rule set so lint results do not depend on the ruff version defaults.
+line-length = 120
+target-version = "py311"
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
