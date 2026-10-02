@@ -23,7 +23,7 @@ source:
     hospital_name: hospital_name
     claim_status: claim_status
     document_request: document_request
-  header_match: exact_order        # a2: as2/poc/validation.py:191-192 (ต้องตรงทุกตัวอักษรและลำดับ)
+  header_match: exact_order        # a2: as2/poc/validation.py:212-214 (ต้องตรงทุกตัวอักษรและลำดับ)
 
 fields:
   - {id: customer_name,        label_th: ชื่อลูกค้า,                  type: text}
@@ -33,7 +33,7 @@ fields:
   - {id: hospital_name,        label_th: ชื่อโรงพยาบาล,               type: text}
   - {id: claim_status,         label_th: สถานะ,                       type: enum, values: [REQUEST_DOC, APPROVED, REJECTED]}
   - {id: document_request,     label_th: รายการเอกสาร,                type: list_of_text, input_format: bracket_list}
-  # input_format bracket_list = ["ก","ข"]  ตรงกับที่ A2 อ่าน (as2/poc/validation.py:97-106 _parse_document_list)
+  # input_format bracket_list = ["ก","ข"]  ตรงกับที่ A2 อ่าน (as2/poc/validation.py:103-112 _parse_document_list)
 
 normalize:                         # a2: มีแล้ว ค่าเริ่มต้นเป็นสมมติฐานของผู้เขียน A2 (as2/docs/OPEN_QUESTIONS.md ข้อ 11, 12)
   - {field: customer_name, op: ensure_prefix_once, value: คุณ}           # a2: as2/poc/normalize.py:53-76 (format_salutation)
@@ -42,27 +42,27 @@ normalize:                         # a2: มีแล้ว ค่าเริ�
 
 rules:                             # ชุดกติกาปิด: required | date_valid | date_order | enum | list_of_text | required_if | conflict_if | unique_in_file | vocabulary
   - {id: R1, type: required,     fields: [customer_name, policy_number, hospital_name, claim_status],
-     message: REQUIRED,              a2: "as2/poc/validation.py:116-118"}
+     message: REQUIRED,              a2: "as2/poc/validation.py:122-124"}
   - {id: R2, type: date_valid,   fields: [coverage_start_date, coverage_end_date],
-     message: INVALID_DATE,          a2: "as2/poc/validation.py:120-125"}
+     message: INVALID_DATE,          a2: "as2/poc/validation.py:126-131"}
   - {id: R3, type: date_order,   start: coverage_start_date, end: coverage_end_date,
-     message: DATE_ORDER,            a2: "as2/poc/validation.py:126-132"}
+     message: DATE_ORDER,            a2: "as2/poc/validation.py:132-138"}
   - {id: R4, type: enum,         field: claim_status,
-     message: UNKNOWN_STATUS,        a2: "as2/poc/validation.py:135-136"}
+     message: UNKNOWN_STATUS,        a2: "as2/poc/validation.py:141-142"}
   - {id: R5, type: list_of_text, field: document_request,
-     message: INVALID_LIST,          a2: "as2/poc/validation.py:139-144"}
+     message: INVALID_LIST,          a2: "as2/poc/validation.py:145-150"}
   - {id: R6, type: required_if,  field: document_request, when: {claim_status: REQUEST_DOC}, min_items: 1,
-     message: REQUIRED_FOR_REQUEST,  a2: "as2/poc/validation.py:145-147"}
+     message: REQUIRED_FOR_REQUEST,  a2: "as2/poc/validation.py:151-153"}
   - {id: R7, type: conflict_if,  when: {claim_status: [APPROVED, REJECTED]}, field_not_empty: document_request,
-     message: CONFLICTING_ROW,       a2: "as2/poc/validation.py:210-223", severity: warning}   # A2 ข้ามแถวและแจ้งเป็นคำเตือน
+     message: CONFLICTING_ROW,       a2: "as2/poc/validation.py:233-246", severity: warning}   # A2 ข้ามแถวและแจ้งเป็นคำเตือน
   - {id: R8, type: unique_in_file, key: [policy_number, document_request],
-     message: DUPLICATE_ROW,         a2: "as2/poc/validation.py:226-242"}                      # A2: เลขกรมธรรม์ + ชุดชื่อเอกสารที่อนุมัติ ไม่สนลำดับ [TO CONFIRM] ถ้ามีรหัสคำขอจากระบบต้นทางให้ใช้รหัสนั้น
+     message: DUPLICATE_ROW,         a2: "as2/poc/validation.py:249-286"}                      # A2: เลขกรมธรรม์ + ชุดชื่อเอกสารที่อนุมัติ ไม่สนลำดับ [TO CONFIRM] ถ้ามีรหัสคำขอจากระบบต้นทางให้ใช้รหัสนั้น
   - {id: R9, type: vocabulary,   field: document_request, list: document_names_th,
-     message: UNKNOWN_DOCUMENT,      a2: "as2/poc/validation.py:148-158"}                      # รายการชื่อมาตรฐาน as2/poc/config/document_names.yml [TO CONFIRM] เจ้าของ: Claims
+     message: UNKNOWN_DOCUMENT,      a2: "as2/poc/validation.py:154-164"}                      # รายการชื่อมาตรฐาน as2/poc/config/document_names.yml [TO CONFIRM] เจ้าของ: Claims
 
 selection:
-  generate_when: {claim_status: REQUEST_DOC}     # a2: as2/poc/validation.py:43, :208-211
-  otherwise: skip                                # a2: as2/poc/validation.py:211 (บันทึก reason "status=...")
+  generate_when: {claim_status: REQUEST_DOC}     # a2: as2/poc/validation.py:43, :231-234
+  otherwise: skip                                # a2: as2/poc/validation.py:234 (บันทึก reason "status=...")
 
 duplicates:                                      # a2: ตรวจเฉพาะภายในไฟล์ (R8) ข้ามรอบ: none  รันซ้ำเปิดโฟลเดอร์ใหม่ทุกครั้ง (as2/poc/generate_letters.py:73-86) แต่ไม่เทียบกับรอบก่อน
   compare_with: previous_run_manifests           # a2: none
@@ -73,15 +73,15 @@ duplicates:                                      # a2: ตรวจเฉพา�
 template:
   id: request_letter_th
   version: 1                                     # ผูกกับรอบงานทุกครั้ง ห้ามแก้เวอร์ชันที่อนุมัติแล้ว
-  format: docx                                   # ข้อเสนอ: ผู้เขียนใช้ Word  a2: แบบฟอร์มของ A2 เป็น HTML + config/letter.yml แก้โดยวิศวกร (as2/poc/renderer.py:26, as2/poc/letter.py:46-60)
+  format: docx                                   # ข้อเสนอ: ผู้เขียนใช้ Word  a2: แบบฟอร์มของ A2 เป็น HTML + config/letter.yml แก้โดยวิศวกร (as2/poc/renderer.py:27, as2/poc/letter.py:46-60)
   fields_used: [customer_name, policy_number, coverage_start_date, coverage_end_date, hospital_name, document_request]
   list_rendering: {field: document_request, style: numbered}     # ระบบจัดเลข 1. 2. 3. เอง ผู้เขียนแบบฟอร์มไม่เขียนลูป
   date_format: "[TO CONFIRM] พ.ศ. หรือ ค.ศ."         # a2: พิมพ์ พ.ศ. แบบตัวอักษร (as2/poc/normalize.py:114) ยังไม่ได้ยืนยันกับเจ้าของแบบฟอร์ม (as2/docs/OPEN_QUESTIONS.md ข้อ 8)
-  allowed_fonts: ["[TO CONFIRM] ฟอนต์ที่มีสิทธิ์ใช้งานและติดตั้งบนเครื่องสร้าง PDF"]   # a2: แพ็กฟอนต์ Sarabun (OFL) มากับโค้ด (as2/poc/renderer.py:27) ยังไม่ผ่านการตรวจสิทธิ์โดยฝ่ายที่เกี่ยวข้อง
+  allowed_fonts: ["[TO CONFIRM] ฟอนต์ที่มีสิทธิ์ใช้งานและติดตั้งบนเครื่องสร้าง PDF"]   # a2: แพ็กฟอนต์ Sarabun (OFL) มากับโค้ด (as2/poc/renderer.py:28) ยังไม่ผ่านการตรวจสิทธิ์โดยฝ่ายที่เกี่ยวข้อง
 
 output:
   file_name: "row_{source_row:04d}_{hash12(policy_number)}.pdf"   # a2: as2/poc/generate_letters.py:47-50
-  write_mode: atomic_temp_then_rename                             # a2: as2/poc/generate_letters.py:53-56 (manifest และรายงาน) และ as2/poc/renderer.py:164,196 (PDF)
+  write_mode: atomic_temp_then_rename                             # a2: as2/poc/generate_letters.py:53-56 (manifest และรายงาน) และ as2/poc/renderer.py:165,196 (PDF)
   per_row_isolation: true                                         # a2: as2/poc/generate_letters.py:89-102
   checks_after_render:
     - {id: C1, type: pdf_has_pages,             message: PDF_NO_PAGES,         a2: "as2/poc/verify.py:89-96"}

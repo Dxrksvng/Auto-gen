@@ -23,7 +23,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 ROOT = Path(__file__).resolve().parent.parent  # as3/
-A2 = ROOT.parent / "as2"
+A2 = ROOT.parent if (ROOT.parent / "poc").is_dir() else ROOT.parent / "as2"  # as3/ lives inside the A2 repo, or beside it
 POC = A2 / "poc"
 sys.path.insert(0, str(POC))
 
@@ -163,14 +163,14 @@ EXPECT = {
     ("models.py", 26, 26): "class RowIssue", ("models.py", 37, 50): "class SkippedRow",
     ("normalize.py", 53, 76): "def format_salutation", ("normalize.py", 53, 94): "def hospital", ("normalize.py", 78, 94): "def hospital",
     ("normalize.py", 114, 114): "def th_date", ("normalize.py", 114, 166): "def parse_date", ("normalize.py", 184, 198): "class DocumentNames",
-    ("renderer.py", 26, 26): "TEMPLATE_PATH", ("renderer.py", 26, 28): "FONT_REGULAR", ("renderer.py", 27, 27): "FONT_REGULAR", ("renderer.py", 48, 66): "def find_chrome",
-    ("renderer.py", 74, 95): "def build_html", ("renderer.py", 150, 196): "def render_letter", ("renderer.py", 164, 164): "tmp_pdf", ("renderer.py", 196, 196): "replace",
+    ("renderer.py", 27, 27): "TEMPLATE_PATH", ("renderer.py", 27, 29): "FONT_REGULAR", ("renderer.py", 28, 28): "FONT_REGULAR", ("renderer.py", 49, 67): "def find_chrome",
+    ("renderer.py", 75, 96): "def build_html", ("renderer.py", 151, 171): "def render_letter", ("renderer.py", 165, 165): "tmp_pdf", ("renderer.py", 171, 171): "replace",
     ("validation.py", 33, 41): "HEADERS", ("validation.py", 33, 44): "OBSERVED_STATUSES", ("validation.py", 42, 42): "SHEET_NAME", ("validation.py", 43, 43): "REQUEST_STATUS",
-    ("validation.py", 76, 85): "def counts", ("validation.py", 97, 106): "def _parse_document_list", ("validation.py", 108, 170): "def validate_row",
-    ("validation.py", 116, 118): '"REQUIRED"', ("validation.py", 116, 147): "REQUIRED_FOR_REQUEST", ("validation.py", 120, 125): "INVALID_DATE", ("validation.py", 126, 132): "DATE_ORDER",
-    ("validation.py", 135, 136): "UNKNOWN_STATUS", ("validation.py", 139, 144): "INVALID_LIST", ("validation.py", 145, 147): "REQUIRED_FOR_REQUEST", ("validation.py", 148, 158): "UNKNOWN_DOCUMENT",
-    ("validation.py", 183, 271): "def load_and_validate", ("validation.py", 191, 192): "HEADERS_MISMATCH", ("validation.py", 203, 243): "CONFLICTING_ROW",
-    ("validation.py", 208, 211): "SkippedRow", ("validation.py", 210, 223): "CONFLICTING_ROW", ("validation.py", 211, 211): "SkippedRow", ("validation.py", 226, 242): "DUPLICATE_ROW",
+    ("validation.py", 82, 91): "def counts", ("validation.py", 103, 112): "def _parse_document_list", ("validation.py", 114, 176): "def validate_row",
+    ("validation.py", 122, 124): '"REQUIRED"', ("validation.py", 122, 153): "REQUIRED_FOR_REQUEST", ("validation.py", 126, 131): "INVALID_DATE", ("validation.py", 132, 138): "DATE_ORDER",
+    ("validation.py", 141, 142): "UNKNOWN_STATUS", ("validation.py", 145, 150): "INVALID_LIST", ("validation.py", 151, 153): "REQUIRED_FOR_REQUEST", ("validation.py", 154, 164): "UNKNOWN_DOCUMENT",
+    ("validation.py", 204, 313): "def load_and_validate", ("validation.py", 212, 214): "HEADERS_MISMATCH", ("validation.py", 226, 286): "CONFLICTING_ROW",
+    ("validation.py", 231, 234): "SkippedRow", ("validation.py", 233, 246): "CONFLICTING_ROW", ("validation.py", 234, 234): "SkippedRow", ("validation.py", 249, 286): "DUPLICATE_ROW",
     ("verify.py", 28, 31): "_FORBIDDEN", ("verify.py", 44, 69): "def _expected_blocks", ("verify.py", 56, 86): "def check_text", ("verify.py", 78, 80): "dd/mm/yyyy",
     ("verify.py", 82, 85): "expected_numbers", ("verify.py", 89, 96): "def extract_text", ("verify.py", 99, 106): "def verify_pdf", ("verify.py", 101, 104): "Sarabun",
 }
@@ -211,10 +211,14 @@ miss = [m["id"] for m in cat["messages"] + cat["row_chips"] if m["source"] == "a
 check("C03_catalog_a2_entries_exist_in_a2_code", not miss, ", ".join(miss) or "ok")
 
 # C04: every code/message the A2 code can produce has a catalog message
-produced = set(re.findall(r'add\(\s*"[a-z_]+",\s*"([A-Z_]+)"', src["validation.py"]))
-produced |= set(re.findall(r'RowIssue\(\s*source_row,\s*"[a-z_]+",\s*"([A-Z_]+)"', src["validation.py"]))
-produced |= set(re.findall(r'RowIssue\(\s*duplicate_row\.duplicate_of,\s*"[a-z_]+",\s*"([A-Z_]+)"', src["validation.py"]))
-produced |= set(re.findall(r'FileValidationError\("([A-Z_]+)"', src["validation.py"]))
+import ast as _ast
+produced = set()
+for _node in _ast.walk(_ast.parse(src["validation.py"])):
+    if isinstance(_node, _ast.Call):
+        _name = getattr(_node.func, "id", getattr(_node.func, "attr", ""))
+        _i = {"add": 1, "RowIssue": 2, "FileValidationError": 0}.get(_name)
+        if _i is not None and len(_node.args) > _i and isinstance(_node.args[_i], _ast.Constant):
+            produced.add(_node.args[_i].value)
 produced |= {"PDF ไม่มีหน้า", "ไม่พบข้อความที่คาดไว้ใน PDF", "พบแบนเนอร์ตัวอย่างในฉบับจริง", "พบข้อความที่ไม่ควรมี", "พบวันที่รูปแบบ", "จำนวนรายการเอกสารไม่ตรง", "ไม่ได้ถูกฝังใน PDF",
              "RendererUnavailableError", "Chrome did not produce a complete PDF"}
 verify_strings_ok = all(s in src["verify.py"] or s in src["renderer.py"] for s in list(produced)[:0]) 
@@ -281,7 +285,7 @@ check("C13_test_count_in_answer_matches_real_run", passed_n > 0 and passed_n in 
 
 # C14: A2 claims cited by line in A2's own ANSWER.md exist
 a2ans = lines_of(A2 / "ANSWER.md")
-check("C14_a2_answer_lines_cited_by_a3", "กันการส่งซ้ำ" in a2ans[156] and "ส่วนที่ยังเป็นการออกแบบ" in a2ans[185], "as2/ANSWER.md:157 และ :186")
+check("C14_a2_answer_lines_cited_by_a3", "กันการส่งซ้ำ" in a2ans[157] and "ส่วนที่ยังเป็นการออกแบบ" in a2ans[186], "as2/ANSWER.md:158 และ :187")
 
 (ROOT / "docs" / "a2_a3_check_results.json").write_text(json.dumps(results, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
 print(f"\n{len(results['checks']) - fail}/{len(results['checks'])} checks passed; {len(results['probes'])} probes recorded")

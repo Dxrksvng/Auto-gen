@@ -16,7 +16,7 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.worksheet.datavalidation import DataValidation
 
 ROOT = Path(__file__).resolve().parent.parent
-A2_VALIDATION = ROOT.parent / "as2" / "poc" / "validation.py"
+A2_VALIDATION = (ROOT.parent if (ROOT.parent / "poc").is_dir() else ROOT.parent / "as2") / "poc" / "validation.py"
 OUT = ROOT / "examples"
 
 

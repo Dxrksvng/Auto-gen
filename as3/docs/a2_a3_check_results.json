@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-10-02T05:55:46.516182+00:00",
+  "generated_at_utc": "2026-10-02T09:08:50.197150+00:00",
   "probes": {
     "P01_a2_changelog_exists": {
       "observed": true,
@@ -114,7 +114,7 @@
     },
     "P16_rerun_opens_new_directory_and_keeps_old": {
       "observed": true,
-      "note": "โฟลเดอร์ run_20261002T055546Z_69493eed / run_20261002T055552Z_69493eed ; manifest รอบแรกไม่ถูกแก้"
+      "note": "โฟลเดอร์ run_20261002T090850Z_69493eed / run_20261002T090854Z_69493eed ; manifest รอบแรกไม่ถูกแก้"
     },
     "P17_manifest_mentions_previous_run": {
       "observed": [],
@@ -145,7 +145,7 @@
       "note": ""
     },
     "P22_a2_pytest_summary": {
-      "observed": "133 passed, 5 warnings in 27.63s",
+      "observed": "162 passed in 21.98s",
       "note": ""
     }
   },
@@ -164,7 +164,7 @@
     },
     "C04_every_a2_error_code_has_a_catalog_message": {
       "ok": true,
-      "note": "21 A2 codes/messages covered"
+      "note": "24 A2 codes/messages covered"
     },
     "C05_manifest_counts_map_to_status_chips": {
       "ok": true,
@@ -184,7 +184,7 @@
     },
     "C09_guide_has_no_forbidden_words": {
       "ok": true,
-      "note": "checked /Users/jswvn/Desktop/missj/my-exp/assignment/sunday/as3/USER_GUIDE.md -> PASS (0 problem(s))"
+      "note": "checked /tmp/ag2/as3/USER_GUIDE.md -> PASS (0 problem(s))"
     },
     "C10_definition_example_consistent_with_a2": {
       "ok": true,
@@ -200,11 +200,11 @@
     },
     "C13_test_count_in_answer_matches_real_run": {
       "ok": true,
-      "note": "จริง=133"
+      "note": "จริง=162"
     },
     "C14_a2_answer_lines_cited_by_a3": {
       "ok": true,
-      "note": "as2/ANSWER.md:157 และ :186"
+      "note": "as2/ANSWER.md:158 และ :187"
     }
   }
 }

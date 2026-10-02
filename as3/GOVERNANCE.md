@@ -9,7 +9,7 @@ Centralization raises the blast radius of shared failures. Safe reuse therefore 
 Draft → Test with sample data → Review → Published → Retired
 ```
 
-Before publication, validate the schema, mapping completeness, supported rules, template placeholders, representative rendered output and required business approval. For Thai documents, A2 has no font check beyond raising an error when no font file is found (`../as2/poc/renderer.py:21-26`); the visual check was manual. A3 proposes a Thai test sheet and an allowed-font list instead (see `ANSWER.md` 3.2.2).
+Before publication, validate the schema, mapping completeness, supported rules, template placeholders, representative rendered output and required business approval. For Thai documents, A2 has no font check beyond raising an error when no font file is found (`../as2/poc/renderer.py:22-27`); the visual check was manual. A3 proposes a Thai test sheet and an allowed-font list instead (see `ANSWER.md` 3.2.2).
 
 Treat content, schema, rule and shared-engine changes separately because they have different blast radius. Do not overwrite a production template or definition: publish `v2`, retain `v1` for history, and roll new jobs back to the known-good version when needed. Historical jobs continue to reference the version actually used.
 

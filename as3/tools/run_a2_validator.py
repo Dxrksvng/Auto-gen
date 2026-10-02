@@ -1,7 +1,7 @@
 """Run the REAL as2 validator on a workbook and print its exact output (read-only use of as2)."""
 import json, sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "as2" / "poc"))
+sys.path.insert(0, str((Path(__file__).resolve().parents[1].parent if (Path(__file__).resolve().parents[1].parent / "poc").is_dir() else Path(__file__).resolve().parents[2] / "as2") / "poc"))
 from validation import load_and_validate, FileValidationError  # noqa: E402
 
 path = Path(sys.argv[1])

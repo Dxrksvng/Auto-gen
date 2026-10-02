@@ -10,7 +10,8 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT.parent / "as2" / "poc"))
+A2_ROOT = ROOT.parent if (ROOT.parent / "poc").is_dir() else ROOT.parent / "as2"  # as3/ inside the A2 repo, or beside it
+sys.path.insert(0, str(A2_ROOT / "poc"))
 from validation import HEADERS, OBSERVED_STATUSES  # noqa: E402  (the real A2 constants)
 
 RULE_TYPES = {"required", "enum", "date_valid", "date_order", "list_of_text", "list_nonempty_when", "group_consistent"}
@@ -45,7 +46,7 @@ def main(path: Path) -> int:
         fields = {c["field"] for c in data["source"]["columns"]}
         used = set(data["template"]["fields_used"])
         add(used <= fields, f"template fields_used exist in the field list; unknown: {sorted(used - fields)}")
-        a2_source = (ROOT.parent / "as2" / "poc" / "validation.py").read_text(encoding="utf-8")
+        a2_source = (A2_ROOT / "poc" / "validation.py").read_text(encoding="utf-8")
         for rule in data["rules"]:
             add(rule["type"] in RULE_TYPES, f"rule type in closed set: {rule['type']}")
             add(f'"{rule["code"]}"' in a2_source, f"rule code {rule['code']} appears in as2/poc/validation.py")
