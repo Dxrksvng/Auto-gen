@@ -1,0 +1,20 @@
+# Approved Thai wording for document names that may appear in document_request.
+#
+# - key:   a name exactly as it may appear in the source Excel (matching ignores case
+#          and repeated spaces)
+# - value: the wording printed in the letter
+#
+# A name that is not listed here is NOT printed. The row goes to the validation report
+# with code UNKNOWN_DOCUMENT so that a person decides the wording (never silent English).
+#
+# [TO CONFIRM: every wording below, and the English->Thai pairs, must be approved by the
+#  template owner / claims team before production. See docs/OPEN_QUESTIONS.md.]
+version: 1
+names:
+  "สำเนาใบเสร็จค่ารักษาพยาบาล": "สำเนาใบเสร็จค่ารักษาพยาบาล"
+  "รายงานผลการตรวจสุขภาพ": "รายงานผลการตรวจสุขภาพ"
+  "รายงานการรักษาจากแพทย์": "รายงานการรักษาจากแพทย์"
+  "สำเนาประวัติการรักษา": "สำเนาประวัติการรักษา"
+  "ผลตรวจทางห้องปฏิบัติการ": "ผลตรวจทางห้องปฏิบัติการ"
+  "ใบรับรองแพทย์": "ใบรับรองแพทย์"
+  "Medical Report": "รายงานทางการแพทย์"

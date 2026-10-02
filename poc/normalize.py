@@ -8,8 +8,12 @@ warning instead of being guessed.
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
+from pathlib import Path
+
+import yaml
 
 NAME_FORMAT_WARNING = "NAME_FORMAT"
 
@@ -156,3 +160,38 @@ def parse_date(value: object) -> date:
         if dmy:
             return _checked(int(dmy.group(3)), int(dmy.group(2)), int(dmy.group(1)))
     raise DateError(f"อ่านวันที่ไม่ได้: {value!r}")
+
+
+# ---------------------------------------------------------------- document names
+
+DEFAULT_DOCUMENT_NAMES_PATH = Path(__file__).resolve().parent / "config" / "document_names.yml"
+
+
+class UnknownDocumentError(ValueError):
+    """Raised for a document name that has no approved Thai wording."""
+
+    def __init__(self, name: str):
+        super().__init__(f"ไม่พบชื่อเอกสารที่อนุมัติสำหรับ: {name}")
+        self.name = name
+
+
+def _name_key(name: str) -> str:
+    return " ".join(unicodedata.normalize("NFKC", name).casefold().split())
+
+
+@dataclass(frozen=True)
+class DocumentNames:
+    """Mapping from source document names to approved Thai wording."""
+
+    mapping: dict[str, str]
+
+    def resolve(self, name: str) -> str:
+        try:
+            return self.mapping[_name_key(name)]
+        except KeyError:
+            raise UnknownDocumentError(clean_text(name)) from None
+
+
+def load_document_names(path: Path | None = None) -> DocumentNames:
+    raw = yaml.safe_load((path or DEFAULT_DOCUMENT_NAMES_PATH).read_text(encoding="utf-8"))
+    return DocumentNames({_name_key(source): approved for source, approved in raw["names"].items()})
