@@ -1,0 +1,62 @@
+{
+  "Sarabun/weasyprint": {
+    "pages": 1,
+    "fonts": [
+      "GEITTQ+T-Bold",
+      "IMONRG+T"
+    ],
+    "text_ok": {
+      "tone": false,
+      "body": false,
+      "narrow": false,
+      "mixed": false,
+      "honorific": false,
+      "list": false
+    }
+  },
+  "Sarabun/chrome": {
+    "pages": 1,
+    "fonts": [
+      "AAAAAA+Sarabun-Bold",
+      "BAAAAA+Sarabun-Regular"
+    ],
+    "text_ok": {
+      "tone": true,
+      "body": true,
+      "narrow": true,
+      "mixed": true,
+      "honorific": true,
+      "list": true
+    }
+  },
+  "Tahoma/weasyprint": {
+    "pages": 1,
+    "fonts": [
+      "GEITTQ+T-Bold",
+      "IMONRG+T"
+    ],
+    "text_ok": {
+      "tone": false,
+      "body": false,
+      "narrow": false,
+      "mixed": false,
+      "honorific": false,
+      "list": false
+    }
+  },
+  "Tahoma/chrome": {
+    "pages": 1,
+    "fonts": [
+      "AAAAAA+Tahoma-Bold",
+      "BAAAAA+Tahoma"
+    ],
+    "text_ok": {
+      "tone": true,
+      "body": true,
+      "narrow": true,
+      "mixed": true,
+      "honorific": true,
+      "list": true
+    }
+  }
+}

@@ -1,0 +1,21 @@
+# PROPOSED user-facing Thai messages. Left column "code" is what the REAL A2 code emits today
+# (as2/poc/validation.py, generate_letters.py). A2 itself prints English messages; the Thai text is a proposal.
+# source: a2 = emitted by A2 today | new = proposed for A3, not in A2
+row_messages:
+  - {code: REQUIRED, shown_th: "ช่องนี้ว่างอยู่",             source: a2,  status_th: ต้องแก้ไข, meaning_th: "ช่องนี้ว่างอยู่ (ชื่อลูกค้า เลขกรมธรรม์ ชื่อโรงพยาบาล หรือสถานะ)", fix_th: "กรอกข้อมูลในช่องนั้นให้ครบ แล้วอัปโหลดไฟล์อีกครั้ง"}
+  - {code: INVALID_DATE, shown_th: "วันที่ไม่ถูกต้อง",         source: a2,  status_th: ต้องแก้ไข, meaning_th: "ช่องวันที่ไม่ใช่วันที่ที่ Excel อ่านได้ เช่น พิมพ์เป็นตัวหนังสือ", fix_th: "คลิกเซลล์ เลือกรูปแบบเป็น \"วันที่\" แล้วพิมพ์วันที่ใหม่"}
+  - {code: DATE_ORDER, shown_th: "วันสิ้นสุดมาก่อนวันเริ่ม",           source: a2,  status_th: ต้องแก้ไข, meaning_th: "วันสิ้นสุดความคุ้มครองมาก่อนวันเริ่ม", fix_th: "ตรวจวันที่สองช่อง แล้วแก้ให้วันเริ่มมาก่อนวันสิ้นสุด"}
+  - {code: UNKNOWN_STATUS, shown_th: "สถานะไม่ตรงที่ระบบรู้จัก",       source: a2,  status_th: ต้องแก้ไข, meaning_th: "สถานะไม่ตรงกับที่ระบบรู้จัก (REQUEST_DOC, APPROVED, REJECTED)", fix_th: "พิมพ์ให้ตรงตัวอักษรทุกตัว ถ้าเป็นสถานะใหม่ให้แจ้งเจ้าของงาน อย่าแก้เอง"}
+  - {code: INVALID_LIST, shown_th: "รายการเอกสารเขียนไม่ตรงรูปแบบ",         source: a2,  status_th: ต้องแก้ไข, meaning_th: "ช่องรายการเอกสารเขียนไม่ตรงรูปแบบ", fix_th: "ใช้รูปแบบเดียวกับไฟล์ตัวอย่าง คือ [\"เอกสาร 1\",\"เอกสาร 2\"] ครบทั้งวงเล็บและเครื่องหมายคำพูด"}
+  - {code: REQUIRED_FOR_REQUEST, shown_th: "ไม่มีรายการเอกสาร", source: a2,  status_th: ต้องแก้ไข, meaning_th: "สถานะเป็นขอเอกสาร (REQUEST_DOC) แต่ไม่มีรายการเอกสาร", fix_th: "ใส่รายการเอกสารอย่างน้อย 1 รายการ หรือถามเจ้าของงานว่าสถานะถูกหรือไม่"}
+  - {code: SKIP_APPROVED, shown_th: "ไม่ต้องส่งจดหมาย (สถานะ APPROVED)",        source: a2,  status_th: ไม่ต้องส่งจดหมาย, meaning_th: "สถานะ APPROVED ไม่ต้องขอเอกสารเพิ่ม (A2 บันทึกว่า status=APPROVED)", fix_th: "ไม่ต้องทำอะไร"}
+  - {code: SKIP_REJECTED, shown_th: "ไม่ต้องส่งจดหมาย (สถานะ REJECTED)",        source: a2,  status_th: ไม่ต้องส่งจดหมาย, meaning_th: "สถานะ REJECTED ไม่ต้องขอเอกสารเพิ่ม (A2 บันทึกว่า status=REJECTED)", fix_th: "ไม่ต้องทำอะไร"}
+  - {code: DUPLICATE_OF_PREVIOUS_RUN, shown_th: "เหมือนกับที่เคยสร้างในรอบก่อน", source: new, status_th: ต้องตรวจสอบ, meaning_th: "แถวนี้เหมือนกับที่เคยสร้างไว้ในรอบก่อน", fix_th: "ถ้าไม่ตั้งใจให้ลบแถวออก ถ้าตั้งใจให้ระบุเหตุผลแล้วกดยืนยัน"}
+  - {code: UNMAPPED_DOCUMENT_NAME, shown_th: "ชื่อเอกสารยังไม่อยู่ในรายการที่ตกลงกัน", source: new, status_th: ต้องตรวจสอบ, meaning_th: "ชื่อเอกสารนี้ยังไม่อยู่ในรายการชื่อที่ตกลงกันไว้", fix_th: "แจ้งเจ้าของงานให้เพิ่มชื่อ อย่าแก้ชื่อเอง"}
+file_messages:
+  - {code: FILE_HEADERS, shown_th: "หัวคอลัมน์ไม่ตรงกับไฟล์ตัวอย่าง",   source: a2,  meaning_th: "หัวคอลัมน์แถวบนสุดไม่ตรงกับไฟล์ตัวอย่าง", fix_th: "ห้ามแก้ ลบ หรือสลับหัวคอลัมน์ ให้ดาวน์โหลดไฟล์ตัวอย่างใหม่ แล้วคัดลอกข้อมูลไปวาง"}
+  - {code: FILE_UNREADABLE, shown_th: "เปิดไฟล์ไม่ได้", source: a2, meaning_th: "เปิดไฟล์ไม่ได้", fix_th: "บันทึกเป็นไฟล์ Excel อีกครั้ง ถ้าอยู่ใน Google Sheets ให้เลือก ไฟล์ > ดาวน์โหลด > Microsoft Excel"}
+  - {code: FILE_NO_SHEET, shown_th: "ไม่พบแผ่นงานชื่อ Sheet1",  source: a2,  meaning_th: "ไม่พบแผ่นงานชื่อ Sheet1", fix_th: "ตั้งชื่อแผ่นงานแรกว่า Sheet1 แล้วอัปโหลดอีกครั้ง"}
+  - {code: FILE_EMPTY, shown_th: "ไฟล์ไม่มีข้อมูล",     source: a2,  meaning_th: "ไฟล์ไม่มีข้อมูล", fix_th: "ตรวจว่าเลือกไฟล์ถูกต้อง แล้วอัปโหลดอีกครั้ง"}
+generation_messages:
+  - {code: RENDER_FAILED, shown_th: "สร้างจดหมายแถวนี้ไม่สำเร็จ",  source: a2,  meaning_th: "สร้างจดหมายของแถวนั้นไม่สำเร็จ (A2 บันทึก failed พร้อมข้อความผิดพลาด)", fix_th: "อย่าส่งจดหมายชุดนี้ จดรหัสรอบงานกับแถวที่มีปัญหา แล้วแจ้งทีมดูแลระบบ"}

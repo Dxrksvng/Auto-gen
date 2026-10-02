@@ -1,0 +1,55 @@
+<!doctype html><html lang="th"><meta charset="utf-8"><title>ผลการตรวจ มีรายการที่ต้องแก้</title>
+<style>
+@font-face { font-family: S; src: url('../docs/rendering-test/.fonts/Sarabun-Regular.ttf'); font-weight: 400; }
+@font-face { font-family: S; src: url('../docs/rendering-test/.fonts/Sarabun-Bold.ttf'); font-weight: 700; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: S, Tahoma, sans-serif; font-size: 18px; line-height: 1.55; background: #EEF2F5; color: #15212B; }
+.ribbon { background: #FFF0D2; color: #7A4A00; padding: 6px 20px; font-size: 14px; border-bottom: 1px solid #E5C98B; }
+.top { background: #0B6E78; color: #fff; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+.top b { font-size: 20px; } .top span { font-size: 15px; opacity: .9; }
+.wrap { max-width: 1080px; margin: 22px auto; padding: 0 24px; }
+.steps { display: flex; gap: 8px; margin-bottom: 18px; font-size: 15px; }
+.steps div { flex: 1; padding: 8px 10px; border-radius: 8px; background: #fff; border: 1px solid #D5DCE2; color: #55626E; text-align: center; }
+.steps div.on { background: #0B6E78; color: #fff; border-color: #0B6E78; font-weight: 700; }
+.card { background: #fff; border: 1px solid #D5DCE2; border-radius: 12px; padding: 24px 28px; margin-bottom: 16px; }
+h1 { font-size: 26px; margin: 0 0 6px; } h2 { font-size: 20px; margin: 0 0 10px; } p { margin: 6px 0 12px; }
+.muted { color: #55626E; font-size: 16px; }
+.btn { display: inline-block; background: #0B6E78; color: #fff; padding: 12px 24px; border-radius: 8px; font-weight: 700; text-decoration: none; border: 0; font-size: 18px; font-family: inherit; }
+.btn.sec { background: #fff; color: #0B6E78; border: 2px solid #0B6E78; }
+.btn.warn { background: #A02A2A; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.doc { border: 2px solid #0B6E78; border-radius: 12px; padding: 18px 20px; }
+.doc.off { border: 2px dashed #B9C2CA; color: #8A96A1; }
+.chip { display: inline-block; padding: 2px 12px; border-radius: 999px; font-size: 15px; font-weight: 700; }
+.c-READY { background: #DFF0F2; color: #0B5560; } .c-FIX { background: #FADFDF; color: #8A1F1F; }
+.c-SKIP { background: #E9EDF0; color: #55626E; } .c-DONE { background: #DCF2E5; color: #1D7447; }
+.c-FAILED { background: #FADFDF; color: #8A1F1F; } .c-DUP { background: #FFF0D2; color: #7A4A00; }
+.c-WAIT_APPROVAL { background: #FFF0D2; color: #7A4A00; } .c-APPROVED { background: #DCF2E5; color: #1D7447; }
+.c-NOT_APPROVED { background: #FADFDF; color: #8A1F1F; } .c-STOP_FILE { background: #FADFDF; color: #8A1F1F; }
+.counts { display: flex; gap: 14px; margin: 10px 0 4px; flex-wrap: wrap; }
+.count { border: 1px solid #D5DCE2; border-radius: 10px; padding: 10px 18px; min-width: 150px; }
+.count b { font-size: 28px; display: block; line-height: 1.1; }
+table { border-collapse: collapse; width: 100%; font-size: 16px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #E1E6EA; vertical-align: top; }
+th { background: #F3F6F8; font-size: 14px; color: #55626E; }
+td:first-child { white-space: nowrap; }
+.drop { border: 2px dashed #7FA9AE; background: #F1F8F8; border-radius: 12px; padding: 28px; text-align: center; }
+.letter { background: #fff; border: 1px solid #C9D1D8; padding: 26px 34px; font-size: 16px; line-height: 1.8; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.grid2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; }
+label { display: block; margin: 10px 0 4px; font-weight: 700; font-size: 16px; }
+.field { border: 1px solid #B9C2CA; border-radius: 8px; padding: 10px 12px; background: #fff; }
+.sheet td, .sheet th { border: 1px solid #C9D1D8; padding: 6px 10px; font-size: 15px; white-space: nowrap; }
+.sheet th { background: #E6EDF3; color: #15212B; } .sheet td.n { background: #F3F6F8; color: #55626E; text-align: center; width: 36px; }
+.err { background: #FFF0D2; }
+nav.index a { display: block; padding: 6px 0; color: #0B6E78; }
+</style>
+<div class="ribbon">ภาพตัวอย่างหน้าจอ (mockup) ระบบนี้ยังเป็นข้อเสนอ ข้อมูลทั้งหมดเป็นข้อมูลสมมติ</div>
+<div class="top"><b>ระบบสร้างเอกสารจากไฟล์ Excel</b><span>ทีม: ตัวอย่าง &nbsp;|&nbsp; ผู้ใช้: ผู้ใช้ตัวอย่าง</span></div>
+<div class="wrap"><div class="steps"><div class="">1 เลือกเอกสาร</div><div class="">2 ดาวน์โหลดแม่แบบ</div><div class="">3 กรอกข้อมูล</div><div class="on">4 อัปโหลด</div><div class="">5 ตรวจและขออนุมัติ</div><div class="">6 รับจดหมาย</div></div>
+<div class="card"><h1>ผลการตรวจไฟล์</h1><div class="counts">
+<div class="count"><b>6</b>แถวทั้งหมด</div><div class="count"><span class="chip c-READY">พร้อมสร้าง</span><b>2</b></div><div class="count"><span class="chip c-FIX">ต้องแก้ไข</span><b>3</b></div><div class="count"><span class="chip c-SKIP">ข้าม</span><b>1</b></div></div>
+<p class="muted">ต้องแก้ 3 แถวก่อน จึงจะไปขั้นต่อไปได้</p></div>
+<div class="card"><h2>รายการที่ต้องแก้</h2><table><tr><th>แถวที่</th><th>ช่อง</th><th>สิ่งที่พบ</th><th>วิธีแก้</th></tr>
+<tr><td><b>แถวที่ 4</b></td><td>ชื่อโรงพยาบาล</td><td>ยังไม่ได้กรอกช่องที่จำเป็น<br><span class='muted'>ช่องชื่อลูกค้า เลขกรมธรรม์ ชื่อโรงพยาบาล หรือสถานะ ว่างอยู่</span></td><td>กรอกข้อมูลในช่องที่ระบบบอก แล้วอัปโหลดใหม่</td></tr><tr><td><b>แถวที่ 6</b></td><td>วันสิ้นสุดความคุ้มครอง</td><td>วันสิ้นสุดอยู่ก่อนวันเริ่ม<br><span class='muted'>วันสิ้นสุดความคุ้มครองมาก่อนวันเริ่มความคุ้มครอง</span></td><td>ตรวจสองช่องวันที่ อาจใส่สลับกันหรือพิมพ์ผิด</td></tr><tr><td><b>แถวที่ 7</b></td><td>รายการเอกสาร</td><td>รูปแบบรายการเอกสารไม่ถูกต้อง<br><span class='muted'>ช่องรายการเอกสารต้องเขียนในวงเล็บเหลี่ยม ชื่อเอกสารแต่ละอย่างอยู่ในเครื่องหมายคำพูด คั่นด้วยจุลภาค</span></td><td>แก้ให้เป็นแบบ [&quot;ใบรับรองแพทย์&quot;,&quot;ผลตรวจเลือด&quot;] ถ้าไม่มีเอกสารให้พิมพ์ []</td></tr></table>
+<p><a class="btn sec" href="s6-preview.html">ดาวน์โหลดรายการที่ต้องแก้</a> &nbsp; <a class="btn" href="s6-preview.html">อัปโหลดไฟล์ที่แก้แล้ว</a></p></div>
+<p class="muted"><a href="index.html">กลับหน้ารวมภาพตัวอย่าง</a></p></div></html>

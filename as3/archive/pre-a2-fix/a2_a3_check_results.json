@@ -1,0 +1,160 @@
+{
+  "generated_at_utc": "2026-10-01T23:44:27.793970+00:00",
+  "probes": {
+    "P01_a2_changelog_exists": {
+      "observed": false,
+      "note": "ถ้า False = A2 ยังไม่ถูกบันทึกว่าแก้แล้ว"
+    },
+    "P02_requirements_file_in_poc": {
+      "observed": false,
+      "note": ""
+    },
+    "P03_font_paths_macos_only": {
+      "observed": true,
+      "note": "FONT_CANDIDATES ทั้งหมดอยู่ใต้ /System/Library"
+    },
+    "P04_manifest_written_atomically": {
+      "observed": false,
+      "note": "manifest.json เขียนด้วย write_text ตรง ไม่ใช่เขียนชั่วคราวแล้วเปลี่ยนชื่อ"
+    },
+    "P05_pdf_written_atomically": {
+      "observed": true,
+      "note": ""
+    },
+    "P06_per_row_isolation": {
+      "observed": true,
+      "note": ""
+    },
+    "P07_verify_pdf_checked_fields": {
+      "observed": "letter.policy_number, letter.customer_name, *letter.requested_documents",
+      "note": "ค่าที่ตรวจในจดหมายหลังสร้าง"
+    },
+    "P08_audit_approval_permission_code": {
+      "observed": [],
+      "note": "คำที่เกี่ยวกับ audit/สิทธิ์/อนุมัติ ในโค้ด A2 (ว่าง = ไม่มี)"
+    },
+    "P09_a2_is_cli_only": {
+      "observed": true,
+      "note": ""
+    },
+    "P10_honorific_doubled_in_pdf": {
+      "observed": true,
+      "note": "จดหมายจากไฟล์ตัวอย่างของ Sunday มี 'คุณ คุณ'"
+    },
+    "P11_hospital_prefix_doubled_in_pdf": {
+      "observed": true,
+      "note": ""
+    },
+    "P12_date_format_in_pdf": {
+      "observed": "01/01/2026",
+      "note": "รูปแบบวันที่ที่พิมพ์ (ค.ศ. dd/mm/YYYY)"
+    },
+    "P13_letter_has_company_or_logo_text": {
+      "observed": false,
+      "note": "ข้อความบริษัทจากแบบฟอร์มจริงอยู่ในจดหมายหรือไม่ (False = ไม่ใช่แบบฟอร์มจริง)"
+    },
+    "P14_manifest_count_keys": {
+      "observed": [
+        "eligible",
+        "failed",
+        "generated",
+        "populated",
+        "rejected",
+        "skipped"
+      ],
+      "note": ""
+    },
+    "P15_manifest_counts_sample": {
+      "observed": {
+        "populated": 10,
+        "eligible": 5,
+        "rejected": 0,
+        "skipped": 5,
+        "generated": 5,
+        "failed": 0
+      },
+      "note": ""
+    },
+    "P22_a2_pdf_fonts": {
+      "observed": [
+        "AAAAAA+Tahoma",
+        "Helvetica"
+      ],
+      "note": "ฟอนต์ที่อยู่ใน PDF ของ A2 (รูปแบบ XXXXXX+ชื่อ = ฝังแบบ subset)"
+    },
+    "P23_verify_pdf_checks_fonts": {
+      "observed": false,
+      "note": "False = ตัวตรวจหลังสร้างของ A2 ไม่ดูฟอนต์เลย"
+    },
+    "P16_rerun_same_directory_overwritten": {
+      "observed": true,
+      "note": "รันไฟล์เดิมซ้ำ: โฟลเดอร์เดิมถูกใช้และ generated_at ถูกเขียนทับ"
+    },
+    "P17_manifest_mentions_previous_run": {
+      "observed": false,
+      "note": "manifest มีฟิลด์อ้างถึงรอบก่อนหน้าหรือไม่"
+    },
+    "P18_markup_in_data_survives_in_pdf": {
+      "observed": false,
+      "note": "False = ข้อมูลที่มี <...> ถูกกลืน ไม่ได้ escape"
+    },
+    "P19_identical_rows_both_generated": {
+      "observed": true,
+      "note": "สองแถวเหมือนกันทุกช่องสร้างจดหมายสองฉบับโดยไม่เตือน"
+    },
+    "P20_status_list_conflict_silently_skipped": {
+      "observed": true,
+      "note": "APPROVED แต่มีรายการเอกสาร ถูกข้ามโดยไม่แจ้ง"
+    },
+    "P21_a2_pytest_summary": {
+      "observed": "6 passed, 5 warnings in 0.58s",
+      "note": ""
+    }
+  },
+  "checks": {
+    "C01_cited_a2_lines_contain_expected_code": {
+      "ok": true,
+      "note": "35 line citations verified"
+    },
+    "C02_all_cited_line_numbers_inside_files": {
+      "ok": true,
+      "note": "ok"
+    },
+    "C03_catalog_a2_entries_exist_in_a2_code": {
+      "ok": true,
+      "note": "ok"
+    },
+    "C04_every_a2_error_string_has_a_catalog_message": {
+      "ok": true,
+      "note": "14 A2 strings covered"
+    },
+    "C05_manifest_counts_map_to_status_chips": {
+      "ok": true,
+      "note": "populated = ทั้งหมด"
+    },
+    "C06_guide_identities_hold_on_a2_output": {
+      "ok": true,
+      "note": "sample={'populated': 10, 'eligible': 5, 'rejected': 0, 'skipped': 5, 'generated': 5, 'failed': 0}"
+    },
+    "C07_sample_files_match_guide": {
+      "ok": true,
+      "note": "ตัวอย่าง=3/2/0 ฝึก rows=[4, 6, 7]"
+    },
+    "C08_guide_contains_all_catalog_statuses_and_messages": {
+      "ok": true,
+      "note": "ok"
+    },
+    "C09_guide_has_no_forbidden_words": {
+      "ok": true,
+      "note": "checked /Users/jswvn/Desktop/missj/my-exp/assignment/sunday/as3/USER_GUIDE.md -> PASS (0 problem(s))"
+    },
+    "C10_definition_example_consistent_with_a2": {
+      "ok": true,
+      "note": "columns/statuses/messages"
+    },
+    "C11_answer_has_no_unsupported_audit_claim": {
+      "ok": true,
+      "note": "ok"
+    }
+  }
+}

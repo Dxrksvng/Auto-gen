@@ -1,0 +1,103 @@
+# Document Definition: จดหมายขอเอกสารเพิ่มเติม  (ข้อเสนอ ยังไม่มีระบบอ่านไฟล์นี้)
+# ไฟล์นี้เป็นตัวอย่างโครงสร้างที่เสนอ  สร้างจากสิ่งที่มีจริงในโค้ด A2 (as2/poc)
+# a2: ชี้ตำแหน่งที่พฤติกรรมเดียวกันมีอยู่แล้วใน A2   a2: none = ยังไม่มีใน A2 เป็นข้อเสนอใหม่
+# [TO CONFIRM] = ข้อเท็จจริงขององค์กรที่ยังไม่ทราบ ห้ามเดา
+
+definition_id: request_documents
+definition_version: 1
+lifecycle_status: draft            # draft -> review -> approved -> retired  (เวอร์ชันที่ approved แก้ไม่ได้)
+owner_team: "[TO CONFIRM]"
+language: th
+phase: 1                           # ใช้เฉพาะความสามารถของเฟส 1 (ดูตาราง "รองรับ / ไม่รองรับ" ใน ANSWER.md)
+
+source:
+  sheet: Sheet1                    # a2: as2/poc/validation.py:32 (ต้องมีแผ่นงานชื่อ Sheet1)
+  header_row: 1
+  other_sheets: ignored            # เฟส 1 ไม่อ่านแผ่นงานอื่น (แผ่น "คำอธิบาย" ในไฟล์แม่แบบจะถูกข้าม)
+  one_row_one_document: true
+  columns:                         # หัวคอลัมน์ Excel -> รหัสช่อง  a2: as2/poc/validation.py:10-17 (HEADERS)
+    customer_name: customer_name
+    policy_number: policy_number
+    coverage_start_date: coverage_start_date
+    coverage_end_date: coverage_end_date
+    hospital_name: hospital_name
+    claim_status: claim_status
+    document_request: document_request
+  header_match: exact_order        # a2: as2/poc/validation.py:42-43 (ต้องตรงทุกตัวอักษรและลำดับ)
+
+fields:
+  - {id: customer_name,        label_th: ชื่อลูกค้า,                  type: text}
+  - {id: policy_number,        label_th: เลขกรมธรรม์,                 type: text}
+  - {id: coverage_start_date,  label_th: วันเริ่มความคุ้มครอง,         type: date}
+  - {id: coverage_end_date,    label_th: วันสิ้นสุดความคุ้มครอง,       type: date}
+  - {id: hospital_name,        label_th: ชื่อโรงพยาบาล,               type: text}
+  - {id: claim_status,         label_th: สถานะ,                       type: enum, values: [REQUEST_DOC, APPROVED, REJECTED]}
+  - {id: document_request,     label_th: รายการเอกสาร,                type: list_of_text, input_format: bracket_list}
+  # input_format bracket_list = ["ก","ข"]  ตรงกับที่ A2 อ่านด้วย json.loads (as2/poc/validation.py:89, :60)
+
+normalize:                         # a2: none  (A2 พิมพ์ "เรียน คุณ" + ชื่อ และ "โรงพยาบาล" + ชื่อ ซ้ำ)
+  - {field: customer_name, op: ensure_prefix_once, value: คุณ}
+  - {field: hospital_name, op: ensure_prefix_once, value: โรงพยาบาล}   # [TO CONFIRM] ต้องรองรับ "รพ." หรือไม่
+  - {op: trim_all_text}
+
+rules:                             # ชุดกติกาปิด: required | date_valid | date_order | enum | list_of_text | required_if | unique_in_file
+  - {id: R1, type: required,     fields: [customer_name, policy_number, hospital_name, claim_status],
+     message: REQUIRED,              a2: "as2/poc/validation.py:77-79"}
+  - {id: R2, type: date_valid,   fields: [coverage_start_date, coverage_end_date],
+     message: INVALID_DATE,          a2: "as2/poc/validation.py:80-82"}
+  - {id: R3, type: date_order,   start: coverage_start_date, end: coverage_end_date,
+     message: DATE_ORDER,            a2: "as2/poc/validation.py:83-85"}
+  - {id: R4, type: enum,         field: claim_status,
+     message: UNKNOWN_STATUS,        a2: "as2/poc/validation.py:86-87"}
+  - {id: R5, type: list_of_text, field: document_request,
+     message: INVALID_LIST,          a2: "as2/poc/validation.py:88-95"}
+  - {id: R6, type: required_if,  field: document_request, when: {claim_status: REQUEST_DOC}, min_items: 1,
+     message: REQUIRED_FOR_REQUEST,  a2: "as2/poc/validation.py:96-97"}
+  - {id: R7, type: conflict_if,  when: {claim_status: [APPROVED, REJECTED]}, field_not_empty: document_request,
+     message: STATUS_LIST_CONFLICT,  a2: none, severity: warning}                 # A2 ข้ามเงียบ ๆ (validation.py:57-58)
+  - {id: R8, type: unique_in_file, key: [policy_number, claim_status, document_request],
+     message: DUP_IN_FILE,           a2: none}                                    # [TO CONFIRM] ถ้ามีรหัสคำขอจากระบบต้นทางให้ใช้รหัสนั้นเป็น key
+  - {id: R9, type: vocabulary,   field: document_request, list: document_names_th,
+     message: UNKNOWN_DOC_NAME,      a2: none}                                    # รายการชื่อมาตรฐาน [TO CONFIRM] เจ้าของ: Claims
+
+selection:
+  generate_when: {claim_status: REQUEST_DOC}     # a2: as2/poc/validation.py:57
+  otherwise: skip                                # a2: as2/poc/validation.py:57-58 (บันทึก reason "status=...")
+
+duplicates:                                      # a2: none (A2 รันซ้ำแล้วเขียนทับโฟลเดอร์เดิม generate_letters.py:43-46)
+  compare_with: previous_run_manifests
+  key_fields: [policy_number, claim_status, document_request]    # [TO CONFIRM] รหัสคำขอที่ไม่ซ้ำจากระบบต้นทาง
+  on_match: require_user_choice                  # use_previous | create_new_with_reason
+  message: DUP_PREVIOUS_RUN
+
+template:
+  id: request_letter_th
+  version: 1                                     # ผูกกับรอบงานทุกครั้ง ห้ามแก้เวอร์ชันที่อนุมัติแล้ว
+  format: docx
+  fields_used: [customer_name, policy_number, coverage_start_date, coverage_end_date, hospital_name, document_request]
+  list_rendering: {field: document_request, style: numbered}     # ระบบจัดเลข 1. 2. 3. เอง ผู้เขียนแบบฟอร์มไม่เขียนลูป
+  date_format: "[TO CONFIRM] พ.ศ. หรือ ค.ศ."         # a2: ใช้ ค.ศ. dd/mm/YYYY (as2/poc/renderer.py:36) ยังไม่ได้ถามเจ้าของแบบฟอร์ม
+  allowed_fonts: ["[TO CONFIRM] ฟอนต์ที่มีสิทธิ์ใช้งานและติดตั้งบนเครื่องสร้าง PDF"]   # a2: เส้นทางฟอนต์ macOS (as2/poc/renderer.py:15-16)
+
+output:
+  file_name: "row_{source_row:04d}_{hash12(policy_number)}.pdf"   # a2: as2/poc/generate_letters.py:24-26
+  write_mode: atomic_temp_then_rename                             # a2: as2/poc/renderer.py:32,57 (เฉพาะ PDF; manifest/rejected.csv A2 เขียนตรง)
+  per_row_isolation: true                                         # a2: as2/poc/generate_letters.py:49-57
+  checks_after_render:
+    - {id: C1, type: pdf_has_pages,             message: PDF_NO_PAGES,        a2: "as2/poc/generate_letters.py:31-32"}
+    - {id: C2, type: no_unresolved_field,       message: PDF_UNRESOLVED,      a2: "as2/poc/generate_letters.py:34-35 (ตรวจเฉพาะ < >)"}
+    - {id: C3, type: all_expected_text_present, message: PDF_CONTENT_MISSING, a2: "as2/poc/generate_letters.py:36-38 (ตรวจ 3 ช่อง ไม่ครบ)"}
+    - {id: C4, type: no_doubled_honorific_or_prefix, message: PDF_CONTENT_MISSING, a2: none}
+  reports: [rejected_rows, run_manifest]                          # a2: as2/poc/generate_letters.py:59-62, :63-82
+
+approval:
+  required: true                                 # a2: none (A2 ไม่มีขั้นตอนอนุมัติในโค้ด มีในเอกสาร ANSWER.md)
+  approver_role: "[TO CONFIRM]"
+  legal_review_required: false                   # [TO CONFIRM] ตัดสินโดยฝ่ายกฎหมาย/กำกับดูแล
+  requester_may_approve_own_run: "[TO CONFIRM]"
+
+retention:                                       # a2: none  ทุกค่าเป็น [TO CONFIRM]
+  uploaded_excel: "[TO CONFIRM]"
+  generated_pdf: "[TO CONFIRM]"
+  run_manifest_and_audit_log: "[TO CONFIRM]"
+  download_allowed_roles: ["[TO CONFIRM]"]

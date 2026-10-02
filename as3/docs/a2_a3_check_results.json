@@ -1,0 +1,210 @@
+{
+  "generated_at_utc": "2026-10-02T05:55:46.516182+00:00",
+  "probes": {
+    "P01_a2_changelog_exists": {
+      "observed": true,
+      "note": ""
+    },
+    "P02_requirements_files_in_poc": {
+      "observed": [
+        "requirements-dev.txt",
+        "requirements.txt"
+      ],
+      "note": ""
+    },
+    "P03_bundled_font_and_license": {
+      "observed": true,
+      "note": "ฟอนต์แพ็กมากับโค้ด และไม่มี path ของ macOS ใน renderer.py"
+    },
+    "P04_manifest_and_reports_atomic": {
+      "observed": true,
+      "note": ""
+    },
+    "P05_pdf_written_atomically": {
+      "observed": true,
+      "note": ""
+    },
+    "P06_per_row_isolation": {
+      "observed": true,
+      "note": ""
+    },
+    "P07_verify_checks": {
+      "observed": {
+        "expected_blocks": true,
+        "doubled_words": true,
+        "date_format": true,
+        "item_count": true,
+        "font_embedded": true
+      },
+      "note": "ตัวตรวจหลังสร้างของ A2 ตรวจอะไรบ้าง"
+    },
+    "P08_audit_approval_permission_code": {
+      "observed": [],
+      "note": "คำที่เกี่ยวกับ audit/สิทธิ์/อนุมัติ ในโค้ด A2 (ว่าง = ไม่มี)"
+    },
+    "P09_a2_is_cli_only": {
+      "observed": true,
+      "note": ""
+    },
+    "P10_honorific_doubled_in_pdf": {
+      "observed": false,
+      "note": "False = ไม่มีคำนำหน้าซ้ำในจดหมายทั้ง 5 ฉบับ"
+    },
+    "P11_hospital_prefix_doubled_in_pdf": {
+      "observed": false,
+      "note": ""
+    },
+    "P12_date_format_in_pdf": {
+      "observed": "1 มกราคม 2569",
+      "note": "รูปแบบวันที่ที่พิมพ์ (พ.ศ. แบบตัวอักษรถ้าตรง)"
+    },
+    "P13_letter_has_company_text": {
+      "observed": true,
+      "note": "ข้อความบริษัทตามแบบฟอร์มในจดหมาย"
+    },
+    "P14_manifest_keys": {
+      "observed": {
+        "keys": [
+          "counts",
+          "duplicates",
+          "failed",
+          "generated",
+          "generated_at",
+          "mode",
+          "notice",
+          "reconciled",
+          "rejected",
+          "renderer",
+          "run_id",
+          "skipped",
+          "source_file",
+          "source_sha256",
+          "template_version"
+        ],
+        "count_keys": [
+          "conflicts",
+          "duplicates",
+          "eligible",
+          "failed",
+          "generated",
+          "populated",
+          "rejected",
+          "skipped"
+        ],
+        "counts": {
+          "populated": 10,
+          "eligible": 5,
+          "rejected": 0,
+          "skipped": 5,
+          "conflicts": 0,
+          "duplicates": 0,
+          "generated": 5,
+          "failed": 0
+        },
+        "reconciled": true
+      },
+      "note": ""
+    },
+    "P15_a2_pdf_fonts": {
+      "observed": [
+        "AAAAAA+Sarabun-Bold",
+        "BAAAAA+Sarabun-Regular"
+      ],
+      "note": "XXXXXX+ชื่อ = ฝังแบบ subset"
+    },
+    "P16_rerun_opens_new_directory_and_keeps_old": {
+      "observed": true,
+      "note": "โฟลเดอร์ run_20261002T055546Z_69493eed / run_20261002T055552Z_69493eed ; manifest รอบแรกไม่ถูกแก้"
+    },
+    "P17_manifest_mentions_previous_run": {
+      "observed": [],
+      "note": "ฟิลด์ที่อ้างถึงรอบก่อน (ว่าง = ไม่มี)"
+    },
+    "P18_markup_in_data_survives_in_pdf": {
+      "observed": true,
+      "note": "True = ข้อมูลที่มี <...> ถูก escape และพิมพ์ครบ"
+    },
+    "P19_identical_rows_one_letter": {
+      "observed": true,
+      "note": "counts={'populated': 5, 'eligible': 1, 'rejected': 2, 'skipped': 1, 'conflicts': 1, 'duplicates': 1, 'generated': 1, 'failed': 0}"
+    },
+    "P20_status_list_conflict_reported": {
+      "observed": true,
+      "note": ""
+    },
+    "P21_cross_run_duplicate_detected": {
+      "observed": false,
+      "note": "รอบที่ 1 สร้าง 1 รอบที่ 2 สร้าง 1 (เท่ากัน = ไม่เทียบข้ามรอบ)"
+    },
+    "P23_unknown_document_rejected": {
+      "observed": true,
+      "note": ""
+    },
+    "P24_buddhist_year_in_date_cell_rejected": {
+      "observed": true,
+      "note": ""
+    },
+    "P22_a2_pytest_summary": {
+      "observed": "133 passed, 5 warnings in 27.63s",
+      "note": ""
+    }
+  },
+  "checks": {
+    "C01_cited_a2_lines_contain_expected_code": {
+      "ok": true,
+      "note": "58 line citations verified"
+    },
+    "C02_all_cited_ranges_are_verified": {
+      "ok": true,
+      "note": "73 citations, all verified"
+    },
+    "C03_catalog_a2_entries_exist_in_a2_code": {
+      "ok": true,
+      "note": "ok"
+    },
+    "C04_every_a2_error_code_has_a_catalog_message": {
+      "ok": true,
+      "note": "21 A2 codes/messages covered"
+    },
+    "C05_manifest_counts_map_to_status_chips": {
+      "ok": true,
+      "note": "ตรวจกุญแจ counts ของ manifest"
+    },
+    "C06_guide_identities_hold_on_a2_output": {
+      "ok": true,
+      "note": "sample={'populated': 10, 'eligible': 5, 'rejected': 0, 'skipped': 5, 'conflicts': 0, 'duplicates': 0, 'generated': 5, 'failed': 0} edge={'populated': 5, 'eligible': 1, 'rejected': 2, 'skipped': 1, 'conflicts': 1, 'duplicates': 1, 'generated': 1, 'failed': 0}"
+    },
+    "C07_sample_files_match_guide": {
+      "ok": true,
+      "note": "ตัวอย่าง={'populated': 5, 'eligible': 3, 'rejected': 0, 'skipped': 2, 'conflicts': 0, 'duplicates': 0} ฝึก rejected=[4, 6, 7]"
+    },
+    "C08_guide_contains_all_catalog_statuses_and_messages": {
+      "ok": true,
+      "note": "ok"
+    },
+    "C09_guide_has_no_forbidden_words": {
+      "ok": true,
+      "note": "checked /Users/jswvn/Desktop/missj/my-exp/assignment/sunday/as3/USER_GUIDE.md -> PASS (0 problem(s))"
+    },
+    "C10_definition_example_consistent_with_a2": {
+      "ok": true,
+      "note": "columns/statuses ตรง ; message ที่ไม่อยู่ใน catalog: ไม่มี"
+    },
+    "C11_answer_has_no_unsupported_audit_claim": {
+      "ok": true,
+      "note": "ok"
+    },
+    "C12_answer_has_no_stale_a2_defect_claims": {
+      "ok": true,
+      "note": "ok"
+    },
+    "C13_test_count_in_answer_matches_real_run": {
+      "ok": true,
+      "note": "จริง=133"
+    },
+    "C14_a2_answer_lines_cited_by_a3": {
+      "ok": true,
+      "note": "as2/ANSWER.md:157 และ :186"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+# ร่างความคิด (sketch) ใบแจ้งต่ออายุที่มีหลายรายการความคุ้มครองต่อหนึ่งกรมธรรม์
+# ไม่ใช่ข้อมูลหรือกติกาของ Sunday  ฟิลด์ทั้งหมดสมมติ [TO CONFIRM]
+# ไฟล์นี้ต้องการความสามารถที่ "เฟส 1 ยังไม่รองรับ"  ดูหมายเหตุ needs ท้ายไฟล์
+
+definition_id: renewal_notice
+definition_version: 1
+lifecycle_status: draft
+phase: 2                          # ต้องรอความสามารถเฟส 2 ไม่ใช่เฟส 1
+
+source:
+  sheet: Sheet1
+  one_row_one_document: false     # เฟส 1 บังคับ true  ตรงนี้ต้องเป็น false
+  group_by: [policy_number]       # หลายแถว (หนึ่งแถวต่อหนึ่งความคุ้มครอง) รวมเป็นหนึ่งใบแจ้ง
+  columns:
+    policy_number: policy_number
+    customer_name: customer_name
+    renewal_date: renewal_date
+    coverage_name: coverage_name
+    sum_insured: sum_insured
+    premium: premium
+    declared_total_premium: declared_total_premium
+
+fields:
+  - {id: policy_number,   label_th: เลขกรมธรรม์,        type: text,   scope: document}
+  - {id: customer_name,   label_th: ชื่อลูกค้า,          type: text,   scope: document}
+  - {id: renewal_date,    label_th: วันต่ออายุ,          type: date,   scope: document}
+  - {id: coverage_name,   label_th: ชื่อความคุ้มครอง,    type: text,   scope: line}
+  - {id: sum_insured,     label_th: ทุนประกัน,           type: number, scope: line}
+  - {id: premium,         label_th: เบี้ยประกัน,         type: number, scope: line}
+  - {id: declared_total_premium, label_th: เบี้ยรวมที่ระบุ, type: number, scope: document}
+  - {id: total_premium,   label_th: เบี้ยรวม,            type: number, scope: document, computed: "sum(lines.premium)"}   # คำนวณด้วยโค้ด ไม่ให้คนพิมพ์และไม่ให้ AI คำนวณ
+
+rules:
+  - {id: R1, type: required,        fields: [policy_number, customer_name, renewal_date]}
+  - {id: R2, type: same_in_group,   fields: [customer_name, renewal_date, declared_total_premium]}   # ใหม่ ข้ามแถว
+  - {id: R3, type: sum_equals,      sum: "lines.premium", equals: declared_total_premium}            # ใหม่ ข้ามแถว
+  - {id: R4, type: number_range,    field: premium, min: 0}                                         # ใหม่
+
+template:
+  id: renewal_notice_th
+  version: 1
+  format: docx
+  repeating_table: {source: lines, columns: [coverage_name, sum_insured, premium]}   # ใหม่ ตารางที่ขยายตามจำนวนรายการ
+  number_format: {premium: "#,##0.00"}                                                # ใหม่
+  optional_paragraphs: ["[TO CONFIRM] ย่อหน้าที่ปรากฏตามเงื่อนไข เช่น มีส่วนลดหรือไม่"]    # ใหม่ ถ้าเลือกรองรับ
+
+approval:
+  required: true
+  legal_review_required: "[TO CONFIRM]"
+
+needs_not_in_phase_1:
+  - group_by และการรวมหลายแถวเป็นเอกสารเดียว (เฟส 1 คือหนึ่งแถว = หนึ่งจดหมาย)
+  - ตารางที่ขยายตามจำนวนรายการในแบบฟอร์ม DOCX (เฟส 1 รองรับเฉพาะรายการเลขข้อเดียวต่อเอกสาร)
+  - ช่องคำนวณด้วยโค้ด (computed) และกติกาข้ามแถว (same_in_group, sum_equals)
+  - ชนิดตัวเลขและการจัดรูปแบบเงิน
+  - ย่อหน้าตามเงื่อนไข
+  - การระบุข้อผิดพลาดระดับ "เอกสาร" (ถ้ามีหนึ่งรายการผิด ทั้งกรมธรรม์ต้องถูกกักไว้ และรายงานต้องบอกแถวที่ของทุกรายการที่เกี่ยวข้อง)

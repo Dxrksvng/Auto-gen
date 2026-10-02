@@ -1,0 +1,40 @@
+{
+  "A_one_run": {
+    "output": [
+      "เรียน คุณตัวอย่าง หนึ่ง"
+    ],
+    "error": null
+  },
+  "B_split_runs_like_word": {
+    "output": [
+      "เรียน คุณตัวอย่าง หนึ่ง"
+    ],
+    "error": null
+  },
+  "C_split_inside_braces": {
+    "output": [
+      "เรียน คุณตัวอย่าง หนึ่ง"
+    ],
+    "error": null
+  },
+  "D_typo_field": {
+    "output": [
+      "เรียน "
+    ],
+    "error": null
+  },
+  "E_field_with_space": {
+    "output": null,
+    "error": "TemplateSyntaxError: expected token 'end of print statement', got 'ลูกค้า'"
+  },
+  "F_unknown_logic": {
+    "output": [
+      "ถึงลูกค้า"
+    ],
+    "error": null
+  },
+  "D_typo_field_strict": {
+    "output": null,
+    "error": "UndefinedError: 'ชื่อลูกค้าา' is undefined"
+  }
+}

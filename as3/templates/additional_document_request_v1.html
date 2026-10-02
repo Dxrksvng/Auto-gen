@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><title>จดหมายขอเอกสารเพิ่มเติม (ตัวอย่างแบบฟอร์ม v1)</title>
+<style>
+@font-face{font-family:"SarabunT";src:url("../assets/fonts/Sarabun-Regular.ttf");font-weight:400}
+@font-face{font-family:"SarabunT";src:url("../assets/fonts/Sarabun-Bold.ttf");font-weight:700}
+@page{size:A4;margin:22mm 22mm}
+body{font-family:"SarabunT",sans-serif;font-size:13pt;line-height:1.55}
+.head{display:flex;justify-content:space-between;margin-bottom:10mm}
+.logo{border:0.3mm dashed #999;padding:3mm 6mm;color:#777;font-size:10pt}
+p{margin:0 0 4mm}
+.indent{text-indent:12mm}
+ol{margin:0 0 5mm 8mm;padding-left:8mm}
+.watermark{color:#b00020;font-size:10pt;margin-bottom:6mm}
+</style></head><body>
+<div class="head"><div class="watermark">ตัวอย่างทดสอบแพลตฟอร์ม — ไม่ใช่จดหมายจริง</div><div class="logo">โลโก้บริษัท [TO CONFIRM]</div></div>
+<p><b>เรียน</b> คุณ {{ชื่อลูกค้า}}<br><b>เรื่อง</b> การแจ้งขอเอกสารเพิ่มเติม</p>
+<p class="indent">ตามที่ท่านได้ทำประกันสุขภาพ กรมธรรม์เลขที่ {{เลขกรมธรรม์}} กับ เอ บี ซี เทสจ้า (ประเทศไทย) จำกัด (มหาชน) ต่อไปนี้เรียกว่า “บริษัท” โดยความคุ้มครองมีผลตั้งแต่วันที่ {{วันเริ่มคุ้มครอง}} ถึงวันที่ {{วันสิ้นสุดคุ้มครอง}} นั้น</p>
+<p class="indent">จากการตรวจสอบรายละเอียดข้อมูลการเคลมจากทางโรงพยาบาล{{ชื่อโรงพยาบาล}} ซึ่งเอาประกันภัยตามกรมธรรม์ดังกล่าว บริษัทมีความจำเป็นต้องให้ท่านส่งเอกสารเพิ่มเติม ดังนี้</p>
+{{รายการเอกสาร}}
+<p class="indent">ท่านสามารถแนบเอกสารมายังแอพพลิเคชั่น “ABC test super app” ของบริษัท</p>
+<p class="indent">ทั้งนี้ หากท่านมีข้อสงสัย ท่านสามารถติดต่อบริษัทได้ที่ เอ บี ซี เทส สำนักงานใหญ่</p>
+<p class="indent">จึงเรียนมาเพื่อโปรดทราบ</p>
+</body></html>

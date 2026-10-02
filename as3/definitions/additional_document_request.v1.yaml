@@ -1,0 +1,68 @@
+# PROPOSAL (Assignment 3). This file is a design example, not a file read by any existing program.
+# It is shaped so that every Excel column, status value and rule code below can be checked
+# against the REAL Assignment 2 code by tools/check_definition.py.
+# Values that are organisation facts are written as "[TO CONFIRM]" on purpose.
+
+definition_id: additional-document-request
+version: 1
+lifecycle: draft            # draft -> review -> approved -> retired  (proposal)
+title_th: จดหมายขอเอกสารเพิ่มเติม
+owner_team: "[TO CONFIRM]"
+legal_effect: "[TO CONFIRM]"   # decides whether legal/compliance must approve the template
+
+source:                        # mirrors as2/poc/validation.py (HEADERS, "Sheet1")
+  sheet: Sheet1
+  columns:                     # order is the A2 order; names must match exactly
+    - {column: customer_name,        field: ชื่อลูกค้า,          type: text,      required: true}
+    - {column: policy_number,        field: เลขกรมธรรม์,         type: text,      required: true}
+    - {column: coverage_start_date,  field: วันเริ่มคุ้มครอง,     type: date,      required: true}
+    - {column: coverage_end_date,    field: วันสิ้นสุดคุ้มครอง,   type: date,      required: true}
+    - {column: hospital_name,        field: ชื่อโรงพยาบาล,        type: text,      required: true}
+    - {column: claim_status,         field: สถานะเคลม,           type: enum,      required: true,
+       values: [REQUEST_DOC, APPROVED, REJECTED]}      # A2 OBSERVED_STATUSES
+    - {column: document_request,     field: รายการเอกสาร,        type: text_list, required: true}
+
+row_selection:                 # A2: only REQUEST_DOC rows produce a letter; others are "skipped"
+  generate_when: {field: claim_status, equals: REQUEST_DOC}
+  otherwise: skip_with_reason
+
+rules:                         # closed set only: required | enum | date_valid | date_order | list_of_text | list_nonempty_when
+  - {type: required,           fields: [customer_name, policy_number, hospital_name, claim_status], code: REQUIRED}
+  - {type: date_valid,         fields: [coverage_start_date, coverage_end_date],                    code: INVALID_DATE}
+  - {type: date_order,         start: coverage_start_date, end: coverage_end_date,                  code: DATE_ORDER}
+  - {type: enum,               field: claim_status,                                                 code: UNKNOWN_STATUS}
+  - {type: list_of_text,       field: document_request,                                             code: INVALID_LIST}
+  - {type: list_nonempty_when, field: document_request, when: {claim_status: REQUEST_DOC},          code: REQUIRED_FOR_REQUEST}
+
+transforms:                    # closed set only; NOT in A2 today (A2 prints the duplicates)
+  - {field: customer_name,  op: strip_leading, value: "คุณ"}
+  - {field: hospital_name,  op: strip_leading, value: "โรงพยาบาล"}
+  - {field: document_request, op: map_names, table: "[TO CONFIRM: ตารางชื่อเอกสารไทย-อังกฤษที่ Claims อนุมัติ]"}
+  - {field: coverage_start_date, op: format_date, style: "[TO CONFIRM: พ.ศ. หรือ ค.ศ.]"}
+  - {field: coverage_end_date,   op: format_date, style: "[TO CONFIRM: พ.ศ. หรือ ค.ศ.]"}
+
+template:
+  ref: templates/additional_document_request_v1.html     # proposed path; authoring copy: .docx
+  version: 1
+  engine: html-to-pdf                                    # see docs/decisions/2026-10-02-rendering-engine.md
+  font: Sarabun (OFL)                                    # test font only; production font [TO CONFIRM]
+  fields_used: [ชื่อลูกค้า, เลขกรมธรรม์, วันเริ่มคุ้มครอง, วันสิ้นสุดคุ้มครอง, ชื่อโรงพยาบาล, รายการเอกสาร]
+
+approval:
+  template_approvers: [claims_owner, "legal_compliance_if_legal_effect"]   # role names are proposals
+  batch_release: "[TO CONFIRM: ผู้อนุมัติ]"
+  preview_samples: 3
+
+duplicates:                    # A2: same file hash -> same batch folder; no business-level check
+  key: "[TO CONFIRM: request_id จากระบบต้นทาง]"
+  fallback_key: [policy_number, document_request, coverage_start_date]
+  on_match: flag_for_review_and_require_override_reason
+
+output:
+  filename: "row_{source_row:04d}_{policy_hash12}.pdf"    # same pattern as A2 generate_letters.py
+
+retention:
+  uploaded_file: "[TO CONFIRM]"
+  generated_pdf: "[TO CONFIRM]"
+  manifest_and_audit: "[TO CONFIRM]"
+  download_allowed_roles: "[TO CONFIRM]"

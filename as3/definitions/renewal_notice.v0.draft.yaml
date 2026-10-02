@@ -1,0 +1,38 @@
+# PROPOSAL / SKETCH ONLY. A renewal notice with several coverage lines per policy.
+# Phase 1 does NOT support this shape. Field names are illustrative; the real fields
+# of a renewal notice are unknown to the author. [TO CONFIRM] with the owning team.
+
+definition_id: renewal-notice
+version: 0
+lifecycle: sketch
+phase_supported: none        # needs the platform capabilities listed under needs_beyond_phase1
+
+source:
+  shape: one_policy_many_lines          # NOT supported in phase 1
+  option_a_two_sheets: {sheets: [Policies, Coverages], join_key: policy_number}
+  option_b_long_format: {one_row_per_coverage: true, group_by: policy_number}
+  columns:
+    - {column: policy_number,    type: text,   required: true,  level: policy}
+    - {column: customer_name,    type: text,   required: true,  level: policy}
+    - {column: renewal_date,     type: date,   required: true,  level: policy}
+    - {column: coverage_name,    type: text,   required: true,  level: line}
+    - {column: sum_insured,      type: number, required: true,  level: line}
+    - {column: premium,          type: number, required: true,  level: line}
+
+computed:
+  - {name: total_premium, op: sum, of: premium, per: policy}   # numbers come from code, never typed or written by AI
+
+rules:
+  - {type: required, fields: [policy_number, customer_name, renewal_date]}
+  - {type: group_consistent, field: customer_name, per: policy_number}    # needs group support
+
+template:
+  repeat_section: coverage_lines          # a table that grows with the number of lines
+  conditional_paragraphs: "[TO CONFIRM: มีหรือไม่]"
+
+needs_beyond_phase1:
+  - grouping of rows by policy (or a two-sheet join)
+  - a repeating table section in the template
+  - computed fields (sum) with a defined rounding rule [TO CONFIRM]
+  - page-break rules for long tables
+  - a duplicate key that works per policy instead of per row
