@@ -55,6 +55,12 @@ FIELD_LABELS_TH = {
 _REQUIRED_TEXT_FIELDS = ("customer_name", "policy_number", "hospital_name", "claim_status")
 
 
+# order matches the ``content`` tuple built in load_and_validate
+_CONTENT_LABELS = (
+    "customer_name", "policy_number", "coverage_start_date", "coverage_end_date", "hospital_name", "document_request",
+)  # fmt: skip
+
+
 class FileValidationError(ValueError):
     """A problem with the whole file; the batch cannot start."""
 
@@ -180,6 +186,21 @@ def _open_sheet(path: Path):
     return workbook[SHEET_NAME]
 
 
+def _headers_message(found: tuple) -> str:
+    """Say exactly which columns are missing, unknown or out of order, not just what the template is."""
+    names = [str(h).strip() for h in found]
+    missing = [h for h in HEADERS if h not in names]
+    unknown = [h for h in names if h not in HEADERS]
+    parts = []
+    if missing:
+        parts.append(f"ขาดคอลัมน์: {', '.join(missing)}")
+    if unknown:
+        parts.append(f"มีคอลัมน์ที่ไม่รู้จัก (เกินจากแม่แบบ): {', '.join(unknown)}")
+    if not parts:
+        parts.append("ลำดับคอลัมน์ไม่ตรงแม่แบบ (ชื่อครบแต่สลับที่หรือซ้ำ)")
+    return "หัวคอลัมน์ไม่ตรงกับแม่แบบ " + " · ".join(parts) + f" · แม่แบบคือ: {', '.join(HEADERS)}"
+
+
 def load_and_validate(path: Path, names: DocumentNames | None = None) -> ValidationResult:
     """Read the workbook, validate every populated row and classify it."""
     names = names or load_document_names()
@@ -188,11 +209,13 @@ def load_and_validate(path: Path, names: DocumentNames | None = None) -> Validat
         raw_headers = next(rows)
     except StopIteration as exc:
         raise FileValidationError("FILE_EMPTY", "ไฟล์ไม่มีข้อมูล") from exc
-    if tuple(v for v in raw_headers if v is not None) != HEADERS:
-        raise FileValidationError("HEADERS_MISMATCH", f"หัวคอลัมน์ต้องตรงกับแม่แบบทุกตัวและตามลำดับ: {', '.join(HEADERS)}")
+    found = tuple(v for v in raw_headers if v is not None)
+    if found != HEADERS:
+        raise FileValidationError("HEADERS_MISMATCH", _headers_message(found))
 
     result = ValidationResult()
     first_seen: dict[tuple, int] = {}
+    similar_seen: dict[tuple, tuple[int, tuple]] = {}
     for source_row, values in enumerate(rows, start=2):
         values = (tuple(values) + (None,) * len(HEADERS))[: len(HEADERS)]
         if not any(v is not None and v != "" for v in values):
@@ -224,24 +247,43 @@ def load_and_validate(path: Path, names: DocumentNames | None = None) -> Validat
 
         approved = tuple(names.resolve(name) for name in listed)
         policy = text_of(row["policy_number"])
-        key = (policy, tuple(sorted(approved)))
-        if key in first_seen:
-            first = first_seen[key]
+        customer = text_of(row["customer_name"])
+        hospital_name = text_of(row["hospital_name"])
+        start, end = parse_date(row["coverage_start_date"]), parse_date(row["coverage_end_date"])
+        # A duplicate is identical in EVERYTHING the letter prints. Rows that only share policy and documents
+        # (for example another hospital) are different letters: both are generated and the later one is flagged.
+        content = (customer, policy, start, end, hospital_name, tuple(sorted(approved)))
+        if content in first_seen:
+            first = first_seen[content]
             result.duplicates.append(DuplicateRow(source_row, first))
             result.issues.append(
                 RowIssue(
                     source_row,
                     "policy_number",
                     "DUPLICATE_ROW",
-                    f"แถวที่ {source_row} ซ้ำกับแถวที่ {first} (เลขกรมธรรม์และรายการเอกสารเหมือนกัน) "
+                    f"แถวที่ {source_row} ซ้ำกับแถวที่ {first} (ชื่อ เลขกรมธรรม์ วันที่ โรงพยาบาล และรายการเอกสารเหมือนกันทั้งหมด) "
                     f"สร้างจดหมายเพียงฉบับเดียวจากแถวที่ {first}",
                     "warning",
                 )
             )
             continue
-        first_seen[key] = source_row
-        customer = text_of(row["customer_name"])
-        hospital_name = text_of(row["hospital_name"])
+        policy_docs = (policy, content[-1])
+        if policy_docs in similar_seen:
+            earlier_row, earlier = similar_seen[policy_docs]
+            differing = [label for label, a, b in zip(_CONTENT_LABELS, earlier, content, strict=True) if a != b]
+            result.issues.append(
+                RowIssue(
+                    source_row,
+                    differing[0],
+                    "SIMILAR_ROW",
+                    f"แถวที่ {source_row} มีเลขกรมธรรม์และรายการเอกสารเหมือนแถวที่ {earlier_row} "
+                    f"แต่ต่างกันที่ {', '.join(differing)} ระบบสร้างจดหมายทั้งสองฉบับ ไม่ตัดแถวใดทิ้ง กรุณาตรวจว่าตั้งใจ",
+                    "warning",
+                )
+            )
+        else:
+            similar_seen[policy_docs] = (source_row, content)
+        first_seen[content] = source_row
         result.letters.append(
             LetterData(
                 source_row=source_row,

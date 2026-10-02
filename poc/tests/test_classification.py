@@ -138,3 +138,63 @@ def test_unreadable_file_raises_with_a_code(tmp_path):
     with pytest.raises(FileValidationError) as info:
         load_and_validate(bad)
     assert info.value.code == "FILE_UNREADABLE"
+
+
+# --- architect review: a "duplicate" must be identical in everything the letter prints ---
+
+
+@pytest.mark.parametrize(
+    ("second", "differs"),
+    [
+        (row(hospital="สมิติเวช"), "hospital_name"),
+        (row(name="สมหญิง ใจดี"), "customer_name"),
+    ],
+)
+def test_same_policy_and_documents_but_different_letter_content_is_not_suppressed(tmp_path, second, differs):
+    path = make_xlsx(tmp_path / "s.xlsx", [row(), second])
+    result = load_and_validate(path)
+    assert [letter.source_row for letter in result.letters] == [2, 3]  # two different letters, none lost
+    assert result.counts()["duplicates"] == 0
+    similar = [i for i in result.issues if i.code == "SIMILAR_ROW"]
+    assert [(i.source_row, i.severity) for i in similar] == [(3, "warning")]
+    assert differs in similar[0].message
+
+
+def test_same_policy_and_documents_but_different_dates_is_not_suppressed(tmp_path):
+    other = row()
+    other[2], other[3] = datetime(2027, 1, 1), datetime(2027, 12, 31)
+    result = load_and_validate(make_xlsx(tmp_path / "s2.xlsx", [row(), other]))
+    assert len(result.letters) == 2
+    assert [i.source_row for i in result.issues if i.code == "SIMILAR_ROW"] == [3]
+    assert "coverage" in next(i.message for i in result.issues if i.code == "SIMILAR_ROW")
+
+
+def test_identical_rows_are_still_one_letter_and_not_reported_as_similar(tmp_path):
+    result = load_and_validate(make_xlsx(tmp_path / "s3.xlsx", [row(), row()]))
+    assert len(result.letters) == 1
+    assert result.counts()["duplicates"] == 1
+    assert "SIMILAR_ROW" not in codes(result)
+
+
+def test_headers_mismatch_names_the_missing_and_unexpected_columns(tmp_path):
+    from validation import HEADERS
+
+    headers = [h for h in HEADERS if h != "hospital_name"] + ["hospital"]
+    with pytest.raises(FileValidationError) as info:
+        load_and_validate(make_xlsx(tmp_path / "h.xlsx", [row()], headers=headers))
+    assert info.value.code == "HEADERS_MISMATCH"
+    message = info.value.message
+    assert "ขาดคอลัมน์: hospital_name" in message
+    assert "คอลัมน์ที่ไม่รู้จัก" in message and "hospital" in message.split("คอลัมน์ที่ไม่รู้จัก")[1]
+
+
+def test_headers_mismatch_reports_wrong_order_when_nothing_is_missing(tmp_path):
+    from validation import HEADERS
+
+    swapped = list(HEADERS)
+    swapped[0], swapped[1] = swapped[1], swapped[0]
+    with pytest.raises(FileValidationError) as info:
+        load_and_validate(make_xlsx(tmp_path / "o.xlsx", [row()], headers=swapped))
+    assert info.value.code == "HEADERS_MISMATCH"
+    assert "ลำดับคอลัมน์ไม่ตรง" in info.value.message
+    assert "ขาดคอลัมน์" not in info.value.message
