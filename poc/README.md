@@ -47,7 +47,7 @@ output/run_20261002T053011Z_69493eed/
 
 ```bash
 pip install -r requirements-dev.txt
-pytest -q          # 131 ข้อ ใช้ Chrome จริงในข้อที่สร้าง PDF ถ้าไม่พบ Chrome ข้อเหล่านั้นจะถูกข้าม
+pytest -q          # 133 ข้อ ใช้ Chrome จริงในข้อที่สร้าง PDF ถ้าไม่พบ Chrome ข้อเหล่านั้นจะถูกข้าม
 ruff check .
 ```
 
