@@ -1,6 +1,6 @@
 ﻿source_row,severity,field,code,message
 2,info,policy_number,DUPLICATE_ROW,แถวที่ 2 มีแถวซ้ำ: แถวที่ 3
-3,warning,policy_number,DUPLICATE_ROW,แถวที่ 3 ซ้ำกับแถวที่ 2 (เลขกรมธรรม์และรายการเอกสารเหมือนกัน) สร้างจดหมายเพียงฉบับเดียวจากแถวที่ 2
+3,warning,policy_number,DUPLICATE_ROW,แถวที่ 3 ซ้ำกับแถวที่ 2 (ชื่อ เลขกรมธรรม์ วันที่ โรงพยาบาล และรายการเอกสารเหมือนกันทั้งหมด) สร้างจดหมายเพียงฉบับเดียวจากแถวที่ 2
 4,warning,document_request,CONFLICTING_ROW,ข้อมูลขัดแย้ง ตรวจสอบ: สถานะเป็น APPROVED แต่มีรายการเอกสาร 1 รายการ ระบบข้ามแถวนี้และไม่สร้างจดหมาย
 5,error,document_request,UNKNOWN_DOCUMENT,ไม่พบชื่อเอกสาร 'Discharge Summary' ในรายการชื่อที่อนุมัติ (config/document_names.yml) กรุณาให้เจ้าของแบบฟอร์มกำหนดคำภาษาไทย ระบบไม่พิมพ์ชื่อที่ไม่รู้จักลงในจดหมาย
 6,error,coverage_end_date,DATE_ORDER,วันสิ้นสุดความคุ้มครองอยู่ก่อนวันเริ่มความคุ้มครอง (เริ่ม 1 เมษายน 2570 สิ้นสุด 31 มีนาคม 2569)
