@@ -1,12 +1,91 @@
-# Assignment 2 mini POC
+# POC สร้างจดหมายขอเอกสารเพิ่มเติม (Assignment 2)
 
-This local CLI proves the narrow deterministic flow: workbook validation → candidate selection → Thai PDF rendering → output verification → rejected-row report and manifest. It treats `REQUEST_DOC` as the candidate eligibility rule solely for this POC. The generated letter prominently says it is a test and must not be sent.
+อ่านไฟล์ Excel รายการเคลม ตรวจข้อมูลทีละแถว สร้างจดหมาย PDF ภาษาไทยเฉพาะแถวสถานะ `REQUEST_DOC`
+แล้วตรวจข้อความใน PDF ทุกฉบับกับข้อความที่ควรเป็น ก่อนเขียนรายงานสรุป ไม่มี LLM และไม่ส่งข้อมูลออกนอกเครื่อง
+เครื่องมือนี้ **ไม่ส่งจดหมายถึงลูกค้า** เอกสารที่ได้เป็นไฟล์สำหรับให้คนตรวจและปล่อย
 
-Run from `poc/`:
+## รันใน 5 นาที
+
+ต้องมี **Python 3.13** (ทดสอบแล้วเฉพาะ 3.13.9) และ **Chrome หรือ Chromium** (ใช้แปลง HTML เป็น PDF)
 
 ```bash
-python3 generate_letters.py ../data/Example\ claim\ table.xlsx
-python3 -m pytest -q
+cd poc
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+
+python generate_letters.py "../data/Example claim table.xlsx"
 ```
 
-The output folder name is derived from the source SHA-256, and PDF filenames use worksheet row plus a policy hash to avoid customer data in filenames. Repeating the same input uses the same batch directory and output names. This demonstrates technical repeat detection; production still needs a stable claim/request ID, business-approved wording, an approved font license, access controls, retention, approval and delivery integration.
+ผลที่ควรเห็น (กับไฟล์ตัวอย่างของโจทย์ 10 แถว):
+
+```
+output/run_<เวลา UTC>_<แฮชไฟล์ 8 ตัว>
+สร้างจดหมาย 5 ฉบับ | ข้าม 5 แถว (ขัดแย้ง 0) | ต้องแก้ไข 0 แถว | แถวซ้ำ 0 แถว | ไม่สำเร็จ 0 ฉบับ
+```
+
+จำนวนจดหมายที่ควรได้ = จำนวนแถวที่สถานะ `REQUEST_DOC` และข้อมูลถูกต้อง (ไฟล์ตัวอย่าง: 5 แถว)
+
+ทุกครั้งที่รันจะได้โฟลเดอร์ใหม่ ไม่เขียนทับรอบก่อน:
+
+```
+output/run_20261002T053011Z_69493eed/
+  letters/row_0002_<แฮช>.pdf ...      จดหมายที่ผ่านการตรวจแล้วเท่านั้น (ชื่อไฟล์ไม่มีชื่อลูกค้า)
+  reports/rejected.csv                แถวที่ถูกกัน (error) พร้อมรหัสและข้อความภาษาไทย
+  reports/validation_report.csv       ทุกประเด็น: error, warning, ข้อมูลขัดแย้ง, แถวซ้ำ
+  manifest.json                       จำนวน เหตุผล เวอร์ชัน (แบบฟอร์ม Chrome ฟอนต์) และผลการกระทบยอด
+```
+
+ตัวเลือก:
+
+- `--output โฟลเดอร์` เปลี่ยนที่เก็บผลลัพธ์ (ค่าเริ่มต้น `output/`)
+- `--preview` ใส่แบนเนอร์ "ตัวอย่างสำหรับตรวจทาน" และตั้งชื่อโฟลเดอร์ลงท้าย `_preview` ใช้เฉพาะตรวจทาน ห้ามส่งลูกค้า
+
+รหัสที่คืนค่า: `0` สำเร็จ, `1` มีจดหมายบางฉบับล้มเหลว, `2` ไฟล์มีปัญหาทั้งไฟล์ (หัวคอลัมน์ผิด ชีตหาย เปิดไม่ได้), `3` ไม่พบ Chrome
+
+## ทดสอบและตรวจโค้ด
+
+```bash
+pip install -r requirements-dev.txt
+pytest -q          # 131 ข้อ ใช้ Chrome จริงในข้อที่สร้าง PDF ถ้าไม่พบ Chrome ข้อเหล่านั้นจะถูกข้าม
+ruff check .
+```
+
+## ตัวอย่างข้อมูลที่มีปัญหาหลายแบบ
+
+```bash
+python scripts/make_demo_workbook.py            # สร้าง ../docs/examples/messy_example.xlsx
+python generate_letters.py ../docs/examples/messy_example.xlsx
+```
+
+ตัวอย่างรายงานที่ได้อยู่ที่ `../docs/examples/validation_report_example.csv`
+
+## ไฟล์สำคัญ
+
+| ไฟล์ | หน้าที่ |
+| --- | --- |
+| `validation.py` | อ่าน Excel เป็นข้อความ ตรวจไฟล์และรายแถว จัดแต่ละแถวเป็น ต้องแก้ไข / ข้าม / ข้อมูลขัดแย้ง / ซ้ำ / สร้างจดหมาย |
+| `normalize.py` | คำนำหน้าชื่อ ชื่อโรงพยาบาล วันที่ (พ.ศ. และการอ่านวันที่หลายแบบ) ชื่อเอกสาร |
+| `letter.py`, `config/letter.yml` | ถ้อยคำของจดหมายจาก template ของโจทย์ ใช้ร่วมกันทั้งตอนสร้างและตอนตรวจ |
+| `renderer.py`, `templates/` | HTML (escape ข้อมูลทุกค่า) แล้วพิมพ์เป็น PDF ด้วย Chrome พร้อมฟอนต์ที่แพ็กมา |
+| `verify.py` | ตรวจข้อความใน PDF กับบรรทัดที่ควรเป็น |
+| `generate_letters.py` | CLI, โฟลเดอร์ต่อรอบ, manifest, รายงาน |
+| `config/document_names.yml` | ตารางชื่อเอกสารที่อนุมัติ (เช่น Medical Report เป็น รายงานทางการแพทย์) |
+| `assets/fonts/` | Sarabun (SIL OFL 1.1) พร้อมไฟล์ไลเซนส์ `OFL.txt` |
+| `assets/logo.png` | โลโก้จาก `data/template_test.pdf` (สร้างด้วย `scripts/extract_logo.py`) |
+| `scripts/rasterize_letters.py` | แปลงหน้า 1 ของจดหมายเป็น PNG ไว้ตรวจด้วยตา |
+
+## Linux และคอนเทนเนอร์ (ยังไม่ได้ทดสอบ)
+
+โค้ดไม่มี path ของระบบปฏิบัติการใดตายตัว (ฟอนต์อยู่ใน `assets/fonts` โหลดด้วย path สัมพัทธ์) แต่ **ยังไม่ได้รันบน Linux** เครื่องที่ใช้ทดสอบเป็น macOS
+
+- ติดตั้ง Chromium เช่น `apt install chromium` (ชื่อแพ็กเกจต่างกันตามระบบ) หรือชี้ตัวแปร `CHROME_BIN` ไปที่ไฟล์ปฏิบัติการ
+- ถ้ารันเป็น root หรือในคอนเทนเนอร์ ให้ตั้ง `CHROME_NO_SANDBOX=1`
+- ตัวสร้าง PDF เปิด Chrome ใหม่ต่อจดหมายหนึ่งฉบับ (ราว 1 วินาทีต่อฉบับบนเครื่องทดสอบ) ยังไม่ได้ปรับให้เร็วสำหรับปริมาณมาก
+
+## ข้อจำกัดและไลเซนส์
+
+- ตัวตรวจข้อความใช้ PyMuPDF ซึ่งเป็นไลเซนส์ AGPL ก่อนนำไปใช้ในองค์กรต้องให้ฝ่ายที่เกี่ยวข้องพิจารณา (ดู `../docs/OPEN_QUESTIONS.md`) ผมลอง pdfplumber, pypdf และ pdfium แล้ว ตัวที่ดึงข้อความไทยจาก PDF ที่ Chrome สร้างได้ถูกต้องมีเพียง PyMuPDF
+- ข้อความที่ดึงจาก PDF ไม่บอกตำแหน่งวรรณยุกต์ การตรวจนั้นต้องดูภาพ (`scripts/rasterize_letters.py`)
+- ถ้อยคำจดหมาย ชื่อบริษัท ช่องทางติดต่อ และตารางชื่อเอกสาร ยังรอเจ้าของ template ยืนยัน (ดู `../docs/OPEN_QUESTIONS.md`)
+- ชุดข้อมูลของ Sunday (`../data/`) เป็นเอกสารโจทย์ที่เป็นความลับ ห้ามเผยแพร่

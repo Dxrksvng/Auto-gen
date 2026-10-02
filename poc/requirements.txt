@@ -1,0 +1,6 @@
+# Runtime dependencies, pinned to the versions the tests were run with.
+# Tested with Python 3.13.9. Also needs Chrome/Chromium (see README.md).
+et-xmlfile==2.0.0
+openpyxl==3.1.5
+pymupdf==1.28.2
+pyyaml==6.0.3

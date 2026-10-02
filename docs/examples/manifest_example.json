@@ -1,0 +1,82 @@
+{
+  "run_id": "run_20261002T053027Z_33573fd3",
+  "mode": "normal",
+  "source_file": "messy_example.xlsx",
+  "source_sha256": "33573fd35f5c9eb49035d798704d5f6241a37680e38c5a6d41d37a115b51fcad",
+  "generated_at": "2026-10-02T05:30:27.375374+00:00",
+  "template_version": "request-letter-th-v1",
+  "renderer": {
+    "engine": "chrome-headless",
+    "chrome_version": "Google Chrome 154.0.8037.95",
+    "font": "Sarabun-Regular.ttf",
+    "font_sha256": "226d4f368fbc0457990ddef2692679badfd2c1a4e89e5ac4d43c10ba7743b2f1"
+  },
+  "counts": {
+    "populated": 9,
+    "eligible": 3,
+    "rejected": 3,
+    "skipped": 2,
+    "conflicts": 1,
+    "duplicates": 1,
+    "generated": 3,
+    "failed": 0
+  },
+  "reconciled": true,
+  "generated": [
+    {
+      "source_row": 2,
+      "output": "letters/row_0002_8fb5c3368e3c.pdf",
+      "pdf_sha256": "1596965695e5c7acf4901fedf3d7b3724927f8145fa05a865f53c4c197095284"
+    },
+    {
+      "source_row": 7,
+      "output": "letters/row_0007_0a509da03f36.pdf",
+      "pdf_sha256": "e968a6d66213f175e638740c886fcbb9f0b9f1161c9f07de40dd29eef04bda81"
+    },
+    {
+      "source_row": 8,
+      "output": "letters/row_0008_b2fb7cefc10b.pdf",
+      "pdf_sha256": "882d559259aebcbe24bd8d7ffab33547d2b7c45c0e2be7dbe9891389076eff20"
+    }
+  ],
+  "failed": [],
+  "skipped": [
+    {
+      "source_row": 4,
+      "reason": "status=APPROVED",
+      "conflict": true
+    },
+    {
+      "source_row": 9,
+      "reason": "status=REJECTED",
+      "conflict": false
+    }
+  ],
+  "duplicates": [
+    {
+      "source_row": 3,
+      "duplicate_of": 2
+    }
+  ],
+  "rejected": [
+    {
+      "source_row": 5,
+      "codes": [
+        "UNKNOWN_DOCUMENT"
+      ]
+    },
+    {
+      "source_row": 6,
+      "codes": [
+        "DATE_ORDER"
+      ]
+    },
+    {
+      "source_row": 10,
+      "codes": [
+        "INVALID_LIST"
+      ]
+    }
+  ],
+  "notice": "Letters are for review and release by a person; this tool never sends anything to customers."
+}
