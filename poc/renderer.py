@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import html
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -116,10 +117,10 @@ def build_html(letter: LetterData, config: LetterConfig | None = None, preview: 
         "CONTACT": _escape(content.contact),
         "CLOSING": _escape(content.closing),
     }
-    page = TEMPLATE_PATH.read_text(encoding="utf-8")
-    for name, value in slots.items():
-        page = page.replace("{{" + name + "}}", value)
-    return page
+    template = TEMPLATE_PATH.read_text(encoding="utf-8")
+    # One pass over the TEMPLATE only: a value that happens to contain "{{CLOSING}}" is printed literally and is
+    # never scanned again (sequential str.replace let customer data be replaced by letter text and markup).
+    return re.sub(r"\{\{([A-Z_]+)\}\}", lambda match: slots.get(match.group(1), match.group(0)), template)
 
 
 def _pdf_is_complete(path: Path) -> bool:
@@ -166,31 +167,53 @@ def render_letter(
     with tempfile.TemporaryDirectory(prefix="letter_") as workdir:
         page = Path(workdir) / "letter.html"
         page.write_text(build_html(letter, config, preview=preview), encoding="utf-8")
-        command = [
-            find_chrome(),
-            "--headless=new",
-            "--disable-gpu",
-            "--no-pdf-header-footer",
-            f"--user-data-dir={Path(workdir) / 'profile'}",
-            f"--print-to-pdf={tmp_pdf}",
-        ]
-        if os.environ.get("CHROME_NO_SANDBOX"):  # needed when running as root inside a container
-            command.append("--no-sandbox")
-        command.append(page.as_uri())
-        process = subprocess.Popen(  # noqa: S603 - fixed argument list, no shell
-            command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True
-        )
-        try:
-            deadline = time.monotonic() + RENDER_TIMEOUT_SECONDS
-            while time.monotonic() < deadline:
-                if tmp_pdf.exists() and _pdf_is_complete(tmp_pdf):
-                    break
-                if process.poll() is not None and not tmp_pdf.exists():
-                    break
-                time.sleep(POLL_SECONDS)
-        finally:
-            _stop(process)
+        print_html_to_pdf(page, tmp_pdf, Path(workdir) / "profile")
+    tmp_pdf.replace(output_path)
+
+
+# Chrome must never reach the network while printing: a template or a value that tried to load a remote
+# resource (tracking pixel, remote font, internal address) would otherwise leak data or time out.
+# Non-loopback hosts cannot resolve; every request is sent to a dead proxy, including loopback (the
+# default proxy bypass for localhost is removed). file:// URLs for the bundled font and logo still work.
+NETWORK_BLOCK_FLAGS = (
+    "--host-resolver-rules=MAP * ~NOTFOUND",
+    "--proxy-server=http://127.0.0.1:9",
+    "--proxy-bypass-list=<-loopback>",
+)
+
+
+def chrome_command(chrome: str, page: Path, tmp_pdf: Path, profile_dir: Path) -> list[str]:
+    command = [
+        chrome,
+        "--headless=new",
+        "--disable-gpu",
+        "--no-pdf-header-footer",
+        *NETWORK_BLOCK_FLAGS,
+        f"--user-data-dir={profile_dir}",
+        f"--print-to-pdf={tmp_pdf}",
+    ]
+    if os.environ.get("CHROME_NO_SANDBOX"):  # needed when running as root inside a container
+        command.append("--no-sandbox")
+    command.append(page.as_uri())
+    return command
+
+
+def print_html_to_pdf(page: Path, tmp_pdf: Path, profile_dir: Path) -> None:
+    """Print one local HTML page to ``tmp_pdf``. Raises RenderError if no complete PDF appears."""
+    process = subprocess.Popen(  # noqa: S603 - fixed argument list, no shell
+        chrome_command(find_chrome(), page, tmp_pdf, profile_dir),
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True,
+    )  # fmt: skip
+    try:
+        deadline = time.monotonic() + RENDER_TIMEOUT_SECONDS
+        while time.monotonic() < deadline:
+            if tmp_pdf.exists() and _pdf_is_complete(tmp_pdf):
+                break
+            if process.poll() is not None and not tmp_pdf.exists():
+                break
+            time.sleep(POLL_SECONDS)
+    finally:
+        _stop(process)
     if not tmp_pdf.exists() or not _pdf_is_complete(tmp_pdf):
         tmp_pdf.unlink(missing_ok=True)
         raise RenderError("Chrome did not produce a complete PDF (timeout or crash)")
-    tmp_pdf.replace(output_path)
