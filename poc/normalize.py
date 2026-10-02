@@ -57,7 +57,7 @@ def format_salutation(name: str) -> Salutation:
     1. empty name -> ValueError (validation should have rejected the row);
     2. unrecognized characters -> keep as-is and warn, never guess;
     3. already starts with "คุณ" or another known title -> keep;
-    4. otherwise prefix "คุณ".
+    4. otherwise prefix "คุณ" (with a space before a Latin-script name).
     """
     cleaned = clean_text(name)
     if not cleaned:
@@ -66,7 +66,8 @@ def format_salutation(name: str) -> Salutation:
         return Salutation(cleaned, NAME_FORMAT_WARNING)
     if _has_known_title(cleaned):
         return Salutation(cleaned)
-    return Salutation(f"คุณ{cleaned}")
+    separator = " " if cleaned[0].isascii() else ""  # "คุณสมชาย" but "คุณ John Smith"
+    return Salutation(f"คุณ{separator}{cleaned}")
 
 
 def salutation(name: str) -> str:

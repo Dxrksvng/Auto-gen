@@ -48,3 +48,11 @@ def test_known_format_has_no_warning():
 def test_empty_name_is_rejected():
     with pytest.raises(ValueError):
         salutation("   ")
+
+
+def test_latin_name_gets_khun_with_a_space():
+    assert salutation("John Smith") == "คุณ John Smith"
+
+
+def test_thai_name_gets_khun_without_a_space():
+    assert salutation("สมชาย ใจดี") == "คุณสมชาย ใจดี"
