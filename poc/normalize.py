@@ -67,3 +67,19 @@ def format_salutation(name: str) -> Salutation:
 def salutation(name: str) -> str:
     """Text-only convenience wrapper around :func:`format_salutation`."""
     return format_salutation(name).text
+
+
+def hospital(name: str) -> str:
+    """Return the hospital name with the facility word exactly once.
+
+    The letter template reads "จากทาง<hospital>", so the value must carry its own
+    facility word. Names that already start with a known facility word are kept;
+    bare names get "โรงพยาบาล". Whether the business wants another rule for bare
+    names is an open question (docs/OPEN_QUESTIONS.md).
+    """
+    cleaned = clean_text(name)
+    if not cleaned:
+        raise ValueError("hospital name is empty")
+    if cleaned.startswith(HOSPITAL_PREFIXES):
+        return cleaned
+    return f"{HOSPITAL_DEFAULT_PREFIX}{cleaned}"
