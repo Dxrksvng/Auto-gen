@@ -44,7 +44,9 @@ def run(input_path: Path, output_root: Path) -> Path:
     batch_dir = output_root / batch_id
     letters_dir = batch_dir / "letters"
     batch_dir.mkdir(parents=True, exist_ok=True)
-    letters, issues, skipped = load_and_validate(input_path)
+    validation = load_and_validate(input_path)
+    letters, issues = validation.letters, validation.issues
+    skipped = [{"source_row": s.source_row, "reason": s.reason} for s in validation.skipped]
     generated, failed = [], []
     for letter in letters:
         output_name = safe_output_name(letter.policy_number, letter.source_row)
@@ -57,7 +59,7 @@ def run(input_path: Path, output_root: Path) -> Path:
             failed.append({"source_row": letter.source_row, "error": str(exc)})
 
     with (batch_dir / "rejected.csv").open("w", newline="", encoding="utf-8-sig") as target:
-        writer = csv.DictWriter(target, fieldnames=["source_row", "field", "code", "message"])
+        writer = csv.DictWriter(target, fieldnames=["source_row", "severity", "field", "code", "message"])
         writer.writeheader()
         writer.writerows(asdict(issue) for issue in issues)
     manifest = {
@@ -67,9 +69,9 @@ def run(input_path: Path, output_root: Path) -> Path:
         "template_version": TEMPLATE_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "counts": {
-            "populated": len(letters) + len(issues_by_row(issues)) + len(skipped),
+            "populated": validation.populated,
             "eligible": len(letters),
-            "rejected": len(issues_by_row(issues)),
+            "rejected": len(validation.rejected_rows),
             "skipped": len(skipped),
             "generated": len(generated),
             "failed": len(failed),
@@ -95,7 +97,7 @@ def main() -> int:
     try:
         print(run(args.input, args.output))
     except FileValidationError as exc:
-        parser.error(str(exc))
+        parser.error(f"[{exc.code}] {exc.message}")
     return 0
 
 
