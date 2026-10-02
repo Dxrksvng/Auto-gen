@@ -19,7 +19,10 @@ def test_surrounding_and_repeated_whitespace_is_cleaned():
 
 @pytest.mark.parametrize(
     "name",
-    ["นายสมชาย ใจดี", "นาย สมชาย ใจดี", "นางสาวสมหญิง รักดี", "นางสมศรี", "ดร.สมชาย", "Dr. John Smith", "dr. john", "Mrs. Jane Doe"],
+    [
+        "นายสมชาย ใจดี", "นาย สมชาย ใจดี", "นางสาวสมหญิง รักดี", "นางสมศรี",
+        "ดร.สมชาย", "Dr. John Smith", "dr. john", "Mrs. Jane Doe",
+    ],
 )
 def test_known_titles_do_not_get_khun(name):
     assert salutation(name) == " ".join(name.split())
