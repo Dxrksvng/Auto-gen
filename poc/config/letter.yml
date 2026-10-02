@@ -1,0 +1,35 @@
+# Wording and fixed text of the request letter, taken from the brief's template
+# (data/template_test.pdf). Both the renderer and the verifier read this file, so the
+# text printed and the text checked cannot drift apart.
+#
+# Placeholders in {braces} are filled from the row by letter.build_letter_text.
+# Everything else is fixed text.
+#
+# [TO CONFIRM: the template owner must approve the final wording, the legal entity name,
+#  the product/app name and the contact text. Items marked FIXED-TYPO were corrected
+#  from the supplied template. See docs/OPEN_QUESTIONS.md.]
+template_version: "request-letter-th-v1"
+
+company:
+  name_th: "เอบีซีเทสจ้า (ประเทศไทย) จำกัด (มหาชน)"   # as written in the template; [TO CONFIRM] legal name
+  app_name: "ABC test super app"                       # as written in the template
+  contact_place: "เอบีซีเทส สำนักงานใหญ่"                # template gives no phone/address; [TO CONFIRM] contact channel
+
+subject: "การแจ้งขอเอกสารเพิ่มเติม"
+
+paragraphs:
+  intro: >-
+    ตามที่ท่านได้ทำประกันสุขภาพของ กรมธรรม์เลขที่ {policy_number} กับ {company_name}
+    ต่อไปนี้เรียกว่า “บริษัท” โดยความคุ้มครองมีผลตั้งแต่วันที่ {coverage_start} ถึงวันที่ {coverage_end} นั้น
+  request: >-
+    จากการตรวจสอบรายละเอียดข้อมูลการเคลมจากทาง{hospital} ซึ่งเอาประกันภัยตามกรมธรรม์ดังกล่าว
+    บริษัทมีความจำเป็นต้องให้ท่านส่งเอกสารเพิ่มเติม ดังนี้
+  # FIXED-TYPO: the supplied template reads "ท่าสามารถ"; corrected to "ท่านสามารถ".
+  submit: >-
+    ท่านสามารถแนบเอกสารมายัง แอพพลิเคชั่น “{app_name}” ของบริษัท
+  contact: >-
+    ทั้งนี้หากท่านมีข้อสงสัย ท่านสามารถติดต่อบริษัทได้ที่ {contact_place}
+  closing: "จึงเรียนมาเพื่อโปรดทราบ"
+
+# Shown only in --preview mode, never in normal output.
+preview_banner: "ตัวอย่างสำหรับตรวจทาน ยังไม่ใช่ฉบับที่ส่งให้ลูกค้า"

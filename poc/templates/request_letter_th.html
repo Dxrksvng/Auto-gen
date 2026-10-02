@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<style>
+@font-face { font-family: "Sarabun"; src: url("{{FONT_REGULAR}}"); font-weight: 400; }
+@font-face { font-family: "Sarabun"; src: url("{{FONT_BOLD}}"); font-weight: 700; }
+@page { size: A4; margin: 18mm 22mm 20mm 22mm; }
+html { font-family: "Sarabun", sans-serif; font-size: 15pt; line-height: 1.55; color: #111; }
+body { margin: 0; }
+.banner { border: 1pt solid #8f5400; background: #fff0d2; color: #6b3f00; padding: 3mm 4mm; margin-bottom: 6mm; font-size: 12pt; }
+.logo { text-align: right; height: 24mm; margin-bottom: 4mm; }
+.logo img { height: 24mm; }
+.head { display: grid; grid-template-columns: 16mm 1fr; margin: 0; row-gap: 1mm; }
+.head .label { font-weight: 700; }
+p { margin: 0 0 4.5mm 0; overflow-wrap: anywhere; }
+p.body { text-indent: 12mm; }
+ol { list-style: none; margin: 0 0 4.5mm 0; padding: 0 0 0 12mm; }
+ol li { margin: 0 0 1mm 0; overflow-wrap: anywhere; }
+.spacer { height: 4mm; }
+</style>
+</head>
+<body>
+{{BANNER}}
+<div class="logo"><img src="{{LOGO}}" alt=""></div>
+<div class="head">
+  <div class="label">เรียน</div><div>{{RECIPIENT}}</div>
+  <div class="label">เรื่อง</div><div>{{SUBJECT}}</div>
+</div>
+<div class="spacer"></div>
+<p class="body">{{INTRO}}</p>
+<p class="body">{{REQUEST}}</p>
+<ol>
+{{ITEMS}}
+</ol>
+<p class="body">{{SUBMIT}}</p>
+<p class="body">{{CONTACT}}</p>
+<div class="spacer"></div>
+<p class="body">{{CLOSING}}</p>
+</body>
+</html>
